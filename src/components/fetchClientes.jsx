@@ -19,7 +19,11 @@ export async function adicionarCliente(clienteNovo) {
       .insert([
         { Nome: clienteNovo.nome,
           Email: clienteNovo.email,
-          Categoria: clienteNovo.categoria 
+          Categoria: clienteNovo.categoria,
+          RM: clienteNovo.rm,
+          Tipo_curso: clienteNovo.tipoCurso,
+          Curso: clienteNovo.curso,
+          Serie: clienteNovo.serie
         },
       ])
       .select(`id_cliente`)
@@ -39,6 +43,25 @@ export async function procurarEmail(idCliente){
 
   if (error || !data) {
       console.error('Erro ao buscar email:', error);
+      return [];
+  }
+
+  return data
+}
+
+export async function atualizarCliente(idCliente, clienteUpdate) {
+  const { data, error } = await supabase
+  .from('Clientes')
+  .update({
+    RM: clienteUpdate.rm,
+    Tipo_curso: clienteUpdate.tipoCurso,
+    Curso: clienteUpdate.curso,
+    Serie: clienteUpdate.serie
+  })
+  .eq('id_cliente', idCliente)
+
+  if (error || !data) {
+      console.error('Erro ao atualizar cliente:', error);
       return [];
   }
 

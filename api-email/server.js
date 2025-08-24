@@ -13,6 +13,7 @@ app.post('/enviar-email', async (req, res) => {
 ${carrinho.uniformes || ''}
 ${carrinho.armarios || ''}
 ${carrinho.total || ''}
+${carrinho.extra || ''}
 `;
 
   console.log('Body da requisição:', req.body)

@@ -104,62 +104,43 @@ export default function PagamentoPix() {
     async function handleEnviarComprovante() {
         try {
             const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
-            
-            let corpoEmail = "";
+            let itensParaEmail = {};
             let assunto = "";
 
-            if (detalhesUniformes.length > 0) {
-                corpoEmail += "Uniforme(s) adquirido(s):\n\n";
-                detalhesUniformes.forEach(peca => {
-                    corpoEmail += `- ${peca.Nome}\n`;
-                    corpoEmail += `  Tamanho: ${peca.Tamanho}\n`;
-                    corpoEmail += `  Quantidade: ${peca.quantidade}\n`;
-                    corpoEmail += `  Preço unitário: R$${peca.Preço.toFixed(2)}\n`;
-                    corpoEmail += `  Preço total: R$${(peca.quantidade * peca.Preço).toFixed(2)}\n\n`;
-                });
-            }
+            let detalhesUniformesFormatados = "Uniforme(s) adquirido(s):";
+            detalhesUniformes.forEach(peca => {
+                detalhesUniformesFormatados += `\n${peca.Nome}\nTamanho: ${peca.Tamanho}\nQuantidade: ${peca.quantidade}\nPreço unitário: ${peca.Preço}\nPreço total: ${peca.quantidade * peca.Preço}\n`;
+            });
 
-            if (carrinho.armarios.length > 0) {
-                corpoEmail += "Armário(s) adquirido(s):\n\n";
-                carrinho.armarios.forEach(armario => {
-                    corpoEmail += `- ${armario.nome}\n`;
-                    corpoEmail += `  Corredor: ${armario.corredor}\n`;
-                    corpoEmail += `  Perto da(s) sala(s): ${armario.salaInfo}\n`;
-                    corpoEmail += `  Preço: R$${(armario.preco || 90).toFixed(2)}\n\n`;
-                });
-            }
+            let detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
+            carrinho.armarios.forEach(armario => {
+                detalhesArmarioFormatado += `${armario.nome}\nCorredor: ${armario.corredor}\nPerto da(s) sala(s): ${armario.salaInfo}\n`;
+            });
 
-            corpoEmail += `Total da compra: R$${total.toFixed(2)}`;
-            
             if (carrinho.uniformes.length > 0 && carrinho.armarios.length === 0) {
+                itensParaEmail = { uniformes: detalhesUniformesFormatados, total: `Total da compra: ${total.toFixed(2)}\n`, extra: `Forma de pagamento: Pix\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
                 assunto = "Compra de uniformes da ETEC Bento Quirino";
             } else if (carrinho.armarios.length > 0 && carrinho.uniformes.length === 0) {
+                itensParaEmail = { armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: `Forma de pagamento: Pix` };
                 assunto = "Aluguel de armário(s) da ETEC Bento Quirino";
             } else {
+                itensParaEmail = { uniformes: detalhesUniformesFormatados, armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: `Forma de pagamento: Pix\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
                 assunto = "Compra de uniformes e aluguel de armários da ETEC Bento Quirino";
             }
 
             const response = await fetch('http://localhost:3000/enviar-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email,
-                    carrinho: corpoEmail, // Envia a string formatada
-                    assunto
-                }),
+                body: JSON.stringify({ email, carrinho: itensParaEmail, assunto }),
             });
 
-            if (!response.ok) {
-                const erroData = await response.json();
-                throw new Error(erroData.mensagem || 'Falha ao enviar comprovante');
-            }
-
-            const data = await response.json();
-            console.log('Email enviado com sucesso:', data);
-            showAlert('Comprovante enviado por email!');
+            if (!response.ok) throw new Error('Falha ao enviar comprovante');
+            
+            console.log('Email enviado com sucesso.');
+            alert('Comprovante enviado por email!');
         } catch (error) {
             console.error('Erro ao enviar comprovante:', error);
-            showAlert('Falha ao enviar comprovante.');
+            alert('Falha ao enviar comprovante.');
         }
     }
 

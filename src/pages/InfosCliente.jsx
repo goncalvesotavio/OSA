@@ -1,8 +1,8 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/InfosCliente.module.css';
-import { fetchClientes, adicionarCliente } from '../components/fetchClientes';
-import { ClienteContext } from '../context/clienteContext';
+import { fetchClientes, adicionarCliente, atualizarCliente } from '../components/fetchClientes';
+import { ClienteContext } from '../context/ClienteContext';
 import { CarrinhoContext } from '../context/CarrinhoContext';
 import { AlertContext } from '../context/AlertContext';
 import TecladoVirtual from '../components/TecladoVirtual';
@@ -114,8 +114,9 @@ export default function InfosCliente() {
             showAlert("Por favor, insira um email válido.");
             return;
         }
-        await adicionarClienteNovo();
-    };
+            
+        await adicionarClienteNovo()
+    }
 
     const adicionarClienteNovo = async () => {
         const todosCliente = await fetchClientes();
@@ -123,25 +124,54 @@ export default function InfosCliente() {
             cliente.Nome.toLowerCase() === nome.toLowerCase() &&
             cliente.Email.toLowerCase() === email.toLowerCase() &&
             cliente.Categoria === tipoUsuario
-        );
+        )
+
+        const isAlunoOuResponsavel = tipoUsuario === 'Aluno' || tipoUsuario === 'Responsável'
+            if (isAlunoOuResponsavel && carrinho.armarios.length > 0) {
+                const clienteExisteRM = todosCliente.find(cliente =>
+                    cliente.RM === rm
+                )
+
+                if (!clienteExisteRM && clienteExiste) {
+                    const clienteUpdate = {
+                        rm: rm,
+                        tipoCurso: tipoCurso,
+                        curso: curso
+                    }
+
+                    if (tipoCurso === 'Integrado ao Ensino Médio - MTEC') {
+                        clienteUpdate.serie = serie;
+                    }
+                    if (tipoCurso === 'Modular') {
+                        clienteUpdate.serie = modulo;
+                    }
+
+                    atualizarCliente(clienteExiste.id_cliente, clienteUpdate)
+                }
+            }
 
         if (!clienteExiste) {
             const clienteNovo = {
                 nome: nome,
                 email: email,
                 categoria: tipoUsuario,
-            };
+                rm,
+                tipoCurso,
+                curso,
+                serie
+            }
 
-            const isAlunoOuResponsavel = tipoUsuario === 'Aluno' || tipoUsuario === 'Responsável';
+            const isAlunoOuResponsavel = tipoUsuario === 'Aluno' || tipoUsuario === 'Responsável'
             if (isAlunoOuResponsavel && carrinho.armarios.length > 0) {
-                clienteNovo.rm = rm;
-                clienteNovo.tipoCurso = tipoCurso;
-                clienteNovo.curso = curso;
+                clienteNovo.categoria = "Aluno"
+                clienteNovo.rm = rm
+                clienteNovo.tipoCurso = tipoCurso
+                clienteNovo.curso = curso
                 if (tipoCurso === 'Integrado ao Ensino Médio - MTEC') {
                     clienteNovo.serie = serie;
                 }
                 if (tipoCurso === 'Modular') {
-                    clienteNovo.modulo = modulo;
+                    clienteNovo.serie = modulo;
                 }
             }
 
@@ -276,9 +306,9 @@ export default function InfosCliente() {
                                             onFocus={() => setInputAtivo(null)}
                                         >
                                             <option value="" disabled>Selecione a série</option>
-                                            <option value="1ª Série">1ª Série</option>
-                                            <option value="2ª Série">2ª Série</option>
-                                            <option value="3ª Série">3ª Série</option>
+                                            <option value="1">1ª Série</option>
+                                            <option value="2">2ª Série</option>
+                                            <option value="3">3ª Série</option>
                                         </select>
                                     </div>
                                 )}
@@ -316,10 +346,10 @@ export default function InfosCliente() {
                                             onFocus={() => setInputAtivo(null)}
                                         >
                                             <option value="" disabled>Selecione o módulo</option>
-                                            <option value="MÓDULO 1">MÓDULO 1</option>
-                                            <option value="MÓDULO 2">MÓDULO 2</option>
+                                            <option value="1">MÓDULO 1</option>
+                                            <option value="2">MÓDULO 2</option>
                                             {curso !== 'Contabilidade' && (
-                                                <option value="MÓDULO 3">MÓDULO 3</option>
+                                                <option value="3">MÓDULO 3</option>
                                             )}
                                         </select>
                                     </div>
