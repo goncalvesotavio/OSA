@@ -1,0 +1,160 @@
+.barra-carrinho {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #CFB680; 
+    border-top: 4px dotted black;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    gap: 20px;
+    color: black;
+}
+
+.itens {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    overflow-x: auto;
+    flex-grow: 1; 
+    padding-right: 3px;
+}
+
+.itens::-webkit-scrollbar {
+    height: 7px;
+}
+.itens::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+}
+.itens::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.item-carrinho {
+    background: white;
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0; 
+    border: 1px solid #ddd;
+}
+
+.img-produto {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.info {
+    text-align: left;
+    margin-right: 10px; 
+}
+
+.info p {
+    margin: 0;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.info-nome {
+    font-weight: bold;
+}
+
+.info-preco {
+    font-size: 12px;
+}
+
+.controles-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.botao-controle {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.botao-controle:hover {
+    background-color: #e0e0e0;
+}
+
+.botao-remover {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #3d0e08;
+    cursor: pointer;
+    padding: 0 5px;
+    transition: color 0.2s;
+}
+
+.botao-remover:hover {
+    color: #e74c3c;
+}
+
+.resumo-e-acoes {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+
+.acoes-carrinho {
+    display: flex;
+    gap: 15px;
+}
+
+.botao-visualizar, .botao-pagar {
+    border: none;
+    padding: 10px 25px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    color: rgb(0, 0, 0);
+    box-shadow: 2px 4px 8px rgba(0,0,0,0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.botao-visualizar:hover, .botao-pagar:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 6px 12px rgba(0,0,0,0.3);
+}
+
+.botao-visualizar {
+    background-color: #a56767;
+}
+
+.botao-pagar {
+    background-color: #6a9595; 
+}
+
+.resumo-total {
+    text-align: right;
+    border-left: 2px dotted black;
+    padding-left: 20px;
+}
+
+.resumo-total p {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.4;
+}

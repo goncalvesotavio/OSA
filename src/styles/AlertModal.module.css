@@ -1,0 +1,52 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal {
+    background-color: #ffffff;
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    border: 4px solid #CFB680;
+}
+
+.message {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.closeButton {
+    border: none;
+    padding: 1rem 4rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    background-color: #6a9595;
+    color: white;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.closeButton:hover {
+    transform: scale(1.05);
+    background-color: #5a8080;
+}

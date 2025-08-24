@@ -1,0 +1,79 @@
+.paginaSucesso {
+    width: 100vw;
+    height: 100vh;
+    background-color: #E0E0E0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+    position: relative;
+    font-family: Arial, sans-serif;
+}
+
+.botaoVoltar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    background: #ffffff;
+    color: #333;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 3px 7px 14px rgba(0, 0, 0, 0.582);
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conteudo {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+}
+
+.titulo {
+    font-size: 2.5rem;
+    color: #333;
+    max-width: 800px;
+    line-height: 1.4;
+}
+
+.botoesContainer {
+    display: flex;
+    gap: 2rem;
+}
+
+.botaoOpcao {
+    background-color: #5A7D7C;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 15px;
+    padding: 1.5rem 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 300px;
+    text-align: center;
+}
+
+.botaoOpcao:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.logoCanto {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+}

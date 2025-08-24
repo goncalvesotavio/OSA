@@ -1,0 +1,248 @@
+.paginaCorredor {
+    width: 100vw;
+    height: 100vh;
+    background-color: #E0E0E0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 100px 2rem 2rem;
+    padding-top: 8rem;
+    box-sizing: border-box;
+    position: relative;
+    font-family: Arial, sans-serif;
+}
+
+.botaoVoltar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    background: #ffffff;
+    color: #333;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 3px 7px 14px rgba(0, 0, 0, 0.582);
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.titulo {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5rem;
+    color: #333;
+    text-align: center;
+    z-index: 1000;
+}
+
+.gridContainer {
+    width: 100%;
+    max-width: 900px;
+    height: 100%;
+    overflow-y: auto;
+    padding: 0 1rem;
+    transition: padding-bottom 0.3s ease-in-out;
+}
+
+.gridContainer.cartVisible {
+    padding-bottom: 590px; 
+}
+
+.gridContainer::-webkit-scrollbar {
+    width: 24px;
+}
+.gridContainer::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+.gridContainer::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+.sidebarContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.linhaConectora {
+    position: absolute;
+    left: 55px; 
+    top: 55px; 
+    bottom: 55px;
+    width: 50px; 
+    background-color: #5A7D7C; 
+    z-index: 1;
+    transform: translateX(-50%);
+}
+
+.linhaCorredor {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+    z-index: 2; 
+}
+
+.sidebarEspaco, .sidebarNumeroContainer {
+    flex-shrink: 0;
+    width: 110px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebarNumero {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #CFB680;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    line-height: 1.1;
+    text-align: center;
+}
+
+.sidebarNumero span {
+    font-size: 2.2rem;
+    font-weight: 900;
+}
+
+.secaoArmario {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.secaoEspaco {
+    flex-grow: 1;
+}
+
+.secaoArmario h2 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #000;
+}
+
+.gridArmarios {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 4px solid #000;
+}
+
+.botaoArmario {
+    background-color: #fff;
+    border: 3px solid #000;
+    width: 130px;
+    height: 100px;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+.botaoArmario:hover:not(:disabled) {
+    background-color: #e9e9e9;
+}
+
+.botaoArmario:disabled {
+    background-color: #808080;
+    color: #dcdcdc;
+    cursor: not-allowed;
+}
+
+.botaoArmario.selecionado {
+    background-color: #5A7D7C;
+    color: white;
+}
+
+.logoCanto {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+}
+
+@media (max-width: 1024px) {
+    .titulo {
+        font-size: 2rem;
+    }
+    .sidebarEspaco, .sidebarNumeroContainer {
+        width: 90px;
+        height: 90px;
+    }
+    .linhaConectora {
+        left: 45px;
+        top: 45px;
+        bottom: 45px;
+    }
+    .sidebarNumero span {
+        font-size: 1.7rem;
+    }
+    .botaoArmario {
+        width: 120px;
+        height: 90px;
+        font-size: 1.4rem;
+    }
+    .secaoArmario h2 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .paginaCorredor {
+        padding: 2rem;
+        padding-top: 6rem;
+    }
+    .titulo {
+        font-size: 1.5rem;
+    }
+    .gridContainer {
+        padding: 0;
+    }
+    .linhaCorredor {
+        gap: 1rem;
+    }
+    .sidebarEspaco, .sidebarNumeroContainer {
+        width: 70px;
+        height: 70px;
+    }
+    .linhaConectora {
+        left: 35px;
+        top: 35px;
+        bottom: 35px;
+    }
+    .sidebarNumero span {
+        font-size: 1.3rem;
+    }
+    .botaoArmario {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+    }
+    .secaoArmario h2 {
+        font-size: 1.5rem;
+    }
+}

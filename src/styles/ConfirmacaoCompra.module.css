@@ -1,0 +1,168 @@
+.paginaConfirmacao {
+    width: 100vw;
+    height: 100vh;
+    background-color: #E0E0E0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+    position: relative;
+    font-family: Arial, sans-serif;
+}
+
+.botaoVoltar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+    background: #ffffff;
+    color: #333;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 3px 7px 14px rgba(0, 0, 0, 0.582);
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.botaoVoltar:hover {
+    transform: scale(1.05);
+}
+
+.cabecalho {
+    font-size: 2.5rem;
+    color: #000000;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.containerConfirmacao {
+    background-color: #CFB680;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: -10px 10px 25px rgba(0, 0, 0, 0.35);
+    width: 100%;
+    max-width: 800px;
+}
+
+.containerConfirmacao h2 {
+    font-size: 1.5rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.listaItens {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 40vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.listaItens::-webkit-scrollbar {
+    width: 16px;
+}
+
+.listaItens::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.listaItens::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+
+.listaItens::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+.itemCard {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 2px solid transparent;
+}
+
+.itemCard img {
+    border-radius: 8px;
+}
+
+.itemCard.armario {
+    border-color: #333;
+}
+
+.itemImagem {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-right: 15px;
+}
+
+.itemDetalhes {
+    flex-grow: 1;
+}
+
+.itemDetalhes p {
+    margin: 0;
+}
+
+.itemNome {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.itemPreco,
+.itemInfoAdicional {
+    font-size: 1rem;
+    color: #444;
+}
+
+.botoesAcao {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.botaoCancelar,
+.botaoOk {
+    border: none;
+    padding: 0.8rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 1rem;
+    cursor: pointer;
+    color: rgb(0, 0, 0);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.botaoCancelar {
+    background-color: #a56767;
+}
+
+.botaoOk {
+    background-color: #6a9595;
+}
+
+.logoCanto {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 80px;
+    height: auto;
+}
