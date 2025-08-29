@@ -136,8 +136,8 @@ export default function PagamentoPix() {
 
             if (!response.ok) throw new Error('Falha ao enviar comprovante');
             
-            console.log('Email enviado com sucesso.');
-            alert('Comprovante enviado por email!');
+            console.log('Email enviado com sucesso.')
+            alert('Comprovante enviado por email!')
         } catch (error) {
             console.error('Erro ao enviar comprovante:', error);
             alert('Falha ao enviar comprovante.');
