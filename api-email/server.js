@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/enviar-email', async (req, res) => {
-  const { email, carrinho, assunto } = req.body
+  const { email, carrinho, assunto, id_venda } = req.body
 
   const detalhesFormatados = `
 ${carrinho.uniformes || ''}
@@ -33,7 +33,8 @@ ${carrinho.extra || ''}
       subject: assunto,
       html: `<h2 style="color: black; font-family: Arial, sans-serif;">Obrigada por comprar pelo OSA!</h2>
             <p style="color: black; font-family: Arial, sans-serif;">Detalhes da sua compra:</p>
-            <pre style="color: black; font-family: Arial, sans-serif;">${detalhesFormatados}</pre>`
+            <pre style="color: black; font-family: Arial, sans-serif;">${detalhesFormatados}\n</pre>
+            <pre style="color: black; font-family: Arial, sans-serif;">Número da venda: ${id_venda}</pre>`
     });
 
     console.log('Email enviado:', info.response);

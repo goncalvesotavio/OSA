@@ -26,7 +26,7 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
         total: totalCompra,
     };
 
-    const id_venda = await novaVendaUniforme(cliente, infos);
+    const id_venda = await novaVendaUniforme(cliente, infos)
 
     if (carrinho.uniformes.length > 0) {
         const detalhes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
@@ -74,4 +74,6 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
     if (limparCarrinho) {
         limparCarrinho();
     }
+
+    return id_venda
 }

@@ -20,7 +20,7 @@ export async function adicionarCliente(clienteNovo) {
         { Nome: clienteNovo.nome,
           Email: clienteNovo.email,
           Categoria: clienteNovo.categoria,
-          RM: clienteNovo.rm ? Number(clienteUpdate.rm) : null,
+          RM: clienteNovo.rm ? Number(clienteNovo.rm) : null,
           Tipo_curso: clienteNovo.tipoCurso,
           Curso: clienteNovo.curso,
           Serie: clienteNovo.serie ? Number(clienteNovo.serie) : null

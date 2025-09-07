@@ -8,7 +8,7 @@ import { ClienteContext } from '../context/clienteContext';
 import { AlertContext } from '../context/AlertContext';
 import { buscarDetalhesDoCarrinho, fetchUniformes } from '../components/fetchUniformes';
 import { finalizarCompra } from '../components/finalizarCompra';
-import { procurarEmail } from '../components/fetchClientes';
+import { procurarEmail } from '../components/fetchClientes'
 
 const IconeSetaAbaixo = () => (
     <svg className={styles.seta} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -19,14 +19,14 @@ const IconeSetaAbaixo = () => (
 
 export default function PagamentoPix() {
     const navigate = useNavigate();
-    const { carrinho, limparCarrinho } = useContext(CarrinhoContext);
-    const { cliente } = useContext(ClienteContext);
-    const { showAlert } = useContext(AlertContext);
-    const [total, setTotal] = useState(0);
-    const [uniformes, setUniformes] = useState([]);
-    const [email, setEmail] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const { carrinho, limparCarrinho } = useContext(CarrinhoContext)
+    const { cliente } = useContext(ClienteContext)
+    const { showAlert } = useContext(AlertContext)
+    const [total, setTotal] = useState(0)
+    const [uniformes, setUniformes] = useState([])
+    const [email, setEmail] = useState('')
+    const [showModal, setShowModal] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -54,20 +54,21 @@ export default function PagamentoPix() {
         carregarDados();
 
         return () => clearTimeout(timer);
-    }, [navigate, carrinho, cliente]);
+    }, [navigate, carrinho, cliente])
 
     const finalizar = async (enviarEmail) => {
         setIsLoading(true);
         try {
-            if (enviarEmail) {
-                await handleEnviarComprovante();
-            }
-
             const pagamento = {
                 formaPagamento: 'Pix',
                 pago: 'true'
-            };
-            await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho);
+            }
+
+            const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho)
+            
+            if (enviarEmail) {
+                await handleEnviarComprovante(id_venda)
+            }
 
             if (carrinho.armarios.length > 0) {
                 for (const armario of carrinho.armarios) {
@@ -84,7 +85,7 @@ export default function PagamentoPix() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     async function handleEnviarTermoUso(armario) {
         try {
@@ -101,11 +102,12 @@ export default function PagamentoPix() {
         }
     }
 
-    async function handleEnviarComprovante() {
+    async function handleEnviarComprovante(id_venda){
         try {
             const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
-            let itensParaEmail = {};
-            let assunto = "";
+            let itensParaEmail = {}
+            let assunto = ""
+            let extra = "Forma de pagamento: Pix"
 
             let detalhesUniformesFormatados = "Uniforme(s) adquirido(s):";
             detalhesUniformes.forEach(peca => {
@@ -118,20 +120,20 @@ export default function PagamentoPix() {
             });
 
             if (carrinho.uniformes.length > 0 && carrinho.armarios.length === 0) {
-                itensParaEmail = { uniformes: detalhesUniformesFormatados, total: `Total da compra: ${total.toFixed(2)}\n`, extra: `Forma de pagamento: Pix\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
+                itensParaEmail = { uniformes: detalhesUniformesFormatados, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
                 assunto = "Compra de uniformes da ETEC Bento Quirino";
             } else if (carrinho.armarios.length > 0 && carrinho.uniformes.length === 0) {
-                itensParaEmail = { armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: `Forma de pagamento: Pix` };
+                itensParaEmail = { armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra };
                 assunto = "Aluguel de armário(s) da ETEC Bento Quirino";
             } else {
-                itensParaEmail = { uniformes: detalhesUniformesFormatados, armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: `Forma de pagamento: Pix\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
+                itensParaEmail = { uniformes: detalhesUniformesFormatados, armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
                 assunto = "Compra de uniformes e aluguel de armários da ETEC Bento Quirino";
             }
 
             const response = await fetch('http://localhost:3000/enviar-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, carrinho: itensParaEmail, assunto }),
+                body: JSON.stringify({ email, carrinho: itensParaEmail, assunto, id_venda}),
             });
 
             if (!response.ok) throw new Error('Falha ao enviar comprovante');
