@@ -14,7 +14,7 @@ ${carrinho.uniformes || ''}
 ${carrinho.armarios || ''}
 ${carrinho.total || ''}
 ${carrinho.extra || ''}
-`;
+`
 
   console.log('Body da requisição:', req.body)
 
@@ -31,7 +31,7 @@ ${carrinho.extra || ''}
       from: "OSA osabentao@gmail.com",
       to: email,
       subject: assunto,
-      html: `<h2 style="color: black; font-family: Arial, sans-serif;">Obrigada por comprar pelo OSA!</h2>
+      html: `<h2 style="color: black; font-family: Arial, sans-serif;">Obrigado por comprar pelo OSA!</h2>
             <p style="color: black; font-family: Arial, sans-serif;">Detalhes da sua compra:</p>
             <pre style="color: black; font-family: Arial, sans-serif;">${detalhesFormatados}\n</pre>
             <pre style="color: black; font-family: Arial, sans-serif;">Número da venda: ${id_venda}</pre>`
@@ -82,5 +82,5 @@ app.post('/enviar-email-termo-de-uso', async (req, res) => {
 })
 
 app.listen(3000, () => {
-  console.log('API rodando na porta 3000');
+  console.log('API rodando na porta 3000')
 });
