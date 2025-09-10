@@ -1,9 +1,9 @@
 import express from 'express';
-import cors from 'cors';
+import cors from 'cors'
 import nodemailer from 'nodemailer';
 
 const app = express();
-app.use(cors());
+app.use(cors())
 app.use(express.json());
 
 app.post('/enviar-email', async (req, res) => {
@@ -83,4 +83,4 @@ app.post('/enviar-email-termo-de-uso', async (req, res) => {
 
 app.listen(3000, () => {
   console.log('API rodando na porta 3000')
-});
+})
