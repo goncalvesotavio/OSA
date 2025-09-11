@@ -5,26 +5,34 @@ import { mudarArmario } from './fetchArmarios.jsx'
 export async function finalizarCompra(pagamento, cliente, carrinho, produtos, limparCarrinho) {
     
     const totalUniformes = carrinho.uniformes.reduce((acc, item) => {
-        const produto = produtos.find(p => p.id_uniforme === item.id_uniforme);
-        return acc + (produto ? produto.Preço * item.quantidade : 0);
+        const produto = produtos.find(p => p.id_uniforme === item.id_uniforme)
+        return acc + (produto ? produto.Preço * item.quantidade : 0)
     }, 0);
 
-    const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 100), 0);
-    const totalCompra = totalUniformes + totalArmarios;
+    const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 100), 0)
+    const totalCompra = totalUniformes + totalArmarios
 
     if (totalCompra <= 0) {
-        console.log("Carrinho vazio, nenhuma compra a ser finalizada.");
-        return;
+        console.log("Carrinho vazio, nenhuma compra a ser finalizada.")
+        return
     }
 
-    const dataFormatada = new Date().toISOString().split('T')[0];
+    const dataFormatada = new Date().toISOString().split('T')[0]
+
+    let finalizada
+    if (carrinho.uniformes.length > 0 || pagamento.formaPagamento === 'Dinheiro'){
+        finalizada = false
+    } else {
+        finalizada = true
+    }
 
     const infos = {
         data: dataFormatada,
         formaPagamento: pagamento.formaPagamento,
         pago: pagamento.pago,
         total: totalCompra,
-    };
+        finalizada: finalizada
+    }
 
     const id_venda = await novaVendaUniforme(cliente, infos)
 

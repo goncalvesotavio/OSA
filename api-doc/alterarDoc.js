@@ -11,15 +11,31 @@ app.use(express.json())
 
 app.post("/gera-doc", async (req, res) => {
   try {
-    const { contrato } = req.body
+    const { contrato, cliente } = req.body
     const response = await fetch(contrato)
       if (!response.ok) {
       throw new Error("Falha ao baixar o arquivo do contrato");
     }
     const templateBuffer = Buffer.from(await response.arrayBuffer())
     const zip = new PizZip(templateBuffer)
-    const doc = new Docxtemplater(zip)
-    doc.setData({ nome: "Otávio", endereco: "Rua A, 123" });
+    console.log("Cliente recebido:", cliente)
+    console.log("Campos do cliente:", {
+      nome: cliente?.Nome,
+      rm: cliente?.RM,
+      tipo: cliente?.Tipo_curso,
+      curso: cliente?.Curso,
+      serie: cliente?.Serie
+  })
+    const doc = new Docxtemplater(zip, {
+    data: { 
+      nome: cliente?.Nome, 
+      rm: cliente?.RM,
+      curso: cliente?.Tipo_curso + " " + cliente?.Curso,
+      serie: cliente?.Serie,
+      data1: "X",
+      data2: " "
+    }
+  })
     doc.render();
     const output = doc.getZip().generate({ type: "nodebuffer" });
 

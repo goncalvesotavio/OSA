@@ -1,9 +1,11 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CarrinhoContext } from '../context/CarrinhoContext'; // Caminho corrigido
-import styles from '../styles/TermosUso.module.css';
+import React, { useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { CarrinhoContext } from '../context/CarrinhoContext'
+import styles from '../styles/TermosUso.module.css'
 import logoOsa from '/osaCompleto.png'
-import { fetchContrato } from '../components/fetchContratos';
+import { fetchContrato } from '../components/fetchContratos'
+import { ClienteContext } from '../context/clienteContext'
+import { infosCliente } from '../components/fetchContratos'
 
 const IconeTermos = () => (
     <svg className={styles.iconeCabecalho} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -16,44 +18,57 @@ const IconeTermos = () => (
 );
 
 export default function TermosUso() {
-    const navigate = useNavigate();
-    const { limparCarrinho } = useContext(CarrinhoContext);
-    const [aceito, setAceito] = useState(false);
+    const navigate = useNavigate()
+    const { limparCarrinho } = useContext(CarrinhoContext)
+    const [aceito, setAceito] = useState(false)
+    const { cliente } = useContext(ClienteContext)
 
     const handleProceed = () => {
         navigate('/forma-pagamento')
     }
 
-const handleDownloadDoc = async () => {
-    try {
-        const contrato = await fetchContrato(new Date().getFullYear())
-        const caminhoContrato = contrato[0]?.Contrato
-        if (!contrato) {
-            alert("Contrato não encontrado!")
-            return
-        } else {
-            console.log(contrato)
-        }
-        const response = await fetch("http://localhost:4000/gera-doc", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({contrato: caminhoContrato})
-        })
-        if (!response.ok) throw new Error("Erro ao baixar documento");
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "saida.docx";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error(error)
-        alert("Erro ao baixar documento")
+    const buscarCliente = async () => {
+        const dadosCliente = await infosCliente(cliente)
+        return dadosCliente
     }
-}
+
+    const handleDownloadDoc = async () => {
+        try {
+            const contrato = await fetchContrato(new Date().getFullYear())
+            const caminhoContrato = contrato[0]?.Contrato
+            const clienteArray = await buscarCliente()
+            const cliente = clienteArray[0]
+            if (!contrato) {
+                alert("Contrato não encontrado!")
+                return
+            } else {
+                console.log(contrato)
+            }
+            const response = await fetch("http://localhost:4000/gera-doc", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contrato: caminhoContrato, 
+                    cliente: cliente
+                })
+            })
+            if (!response.ok) throw new Error("Erro ao baixar documento");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "saida.docx";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error(error)
+            alert("Erro ao baixar documento")
+        }
+        
+        navigate('/forma-pagamento')
+    }
 
 
     return (
