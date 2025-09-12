@@ -1,55 +1,53 @@
-import ThermalPrinter from "node-thermal-printer"
-import express from "express"
-import cors from "cors"
-
-const app = express()
-app.use(cors({ origin: "http://localhost:5173" }))
-app.use(express.json())
-
 app.post("/imprimir", async (req, res) => {
-  const { carrinho, id_venda } = req.body
+  try {
+    const { carrinho, id_venda } = req.body;
+    console.log("Body recebido:", req.body);
 
-  console.log("Body recebido:", req.body)
+    let printer = new ThermalPrinter.printer({
+      type: "epson",
+      interface: "printer:EPSON_TM-T20", // exemplo Windows
+      characterSet: "SLOVENIA"
+    });
 
-  let printer = new ThermalPrinter.printer({
-    type: "epson",
-    interface: "console",
-    characterSet: "SLOVENIA"
-  });
+    // tenta só logar, não quebrar
+    const isConnected = await printer.isPrinterConnected();
+    console.log("Conectada?", isConnected);
 
-  await printer.isPrinterConnected();
+    printer.alignCenter();
+    printer.bold(true);
+    printer.println("Obrigado por comprar pelo OSA!");
+    printer.bold(false);
 
-  printer.alignCenter();
-  printer.bold(true);
-  printer.println("Obrigado por comprar pelo OSA!");
-  printer.bold(false);
+    const uniformes = carrinho?.detalhesUniformesFormatados || "";
+    const armarios = carrinho?.detalhesArmarioFormatado || "";
+    const extraUniformes = carrinho?.extraUniformes || "";
 
-  if (carrinho.detalhesUniformesFormatados.length > 0 && carrinho.detalhesArmarioFormatado.length == 0) {
-    printer.println("\n--- UNIFORMES ---")
-    printer.println(carrinho.detalhesUniformesFormatados)
-    printer.println("\n" + carrinho.extraUniformes)
-  } else if (carrinho.detalhesArmarioFormatado.length > 0 && carrinho.detalhesUniformesFormatados.length == 0) {
-    printer.println("\n--- ARMÁRIOS ---")
-    printer.println(carrinho.detalhesArmarioFormatado)
-  } else if (carrinho.detalhesArmarioFormatado.length > 0 && carrinho.detalhesUniformesFormatados.length > 0){
-    printer.println("\n--- UNIFORMES ---")
-    printer.println(carrinho.detalhesUniformesFormatados)
-    printer.println("\n--- ARMÁRIOS ---")
-    printer.println(carrinho.detalhesArmarioFormatado)
-    printer.println("\n" + carrinho.extraUniformes)
+    if (uniformes && !armarios) {
+      printer.println("\n--- UNIFORMES ---");
+      printer.println(uniformes);
+      printer.println("\n" + extraUniformes);
+    } else if (armarios && !uniformes) {
+      printer.println("\n--- ARMÁRIOS ---");
+      printer.println(armarios);
+    } else if (armarios && uniformes) {
+      printer.println("\n--- UNIFORMES ---");
+      printer.println(uniformes);
+      printer.println("\n--- ARMÁRIOS ---");
+      printer.println(armarios);
+      printer.println("\n" + extraUniformes);
+    }
+
+    if (carrinho?.extra) {
+      printer.println("\n" + carrinho.extra);
+    }
+
+    printer.println("\nNúmero da venda: " + id_venda);
+
+    await printer.execute();
+
+    res.send({ ok: true });
+  } catch (err) {
+    console.error("Erro ao imprimir:", err);
+    res.status(500).send({ ok: false, error: err.message });
   }
-
-
-  if (carrinho.extra) {
-    printer.println("\n" + carrinho.extra);
-  }
-
-  printer.println("\nNúmero da venda: " + id_venda);
-
-  await printer.execute();
-
-  res.send({ ok: true });
-});
-
-
-app.listen(3001, () => console.log("Servidor rodando na porta 3001"))
+})it 

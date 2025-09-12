@@ -40,7 +40,6 @@ export async function salvarArquivo(file) {
     .storage
     .from("arquivos/Alunos")
     .upload(`Contrato_Aramario_2025.pdf`, file)
-    showOverlay.value = false
 
     if (error) {
       console.log('Erro ao baixar PDF: ', error)

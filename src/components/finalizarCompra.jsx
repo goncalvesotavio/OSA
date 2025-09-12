@@ -1,8 +1,11 @@
 import { novaVendaUniforme, detalhesVendaUniforme, estoque, editarEstoque, detalhesVendaArmario } from './fetchCompras.jsx';
-import { buscarDetalhesDoCarrinho } from './fetchUniformes.jsx';
+import { buscarDetalhesDoCarrinho } from './fetchUniformes.jsx'
 import { mudarArmario } from './fetchArmarios.jsx'
+import { salvarURL } from './fetchContratos.js'
+import { ArquivoContext } from '../context/ArquivoContext.jsx'
+import { useContext } from 'react';
 
-export async function finalizarCompra(pagamento, cliente, carrinho, produtos, limparCarrinho) {
+export async function finalizarCompra(pagamento, cliente, carrinho, produtos, limparCarrinho, arquivoPDF) {
     
     const totalUniformes = carrinho.uniformes.reduce((acc, item) => {
         const produto = produtos.find(p => p.id_uniforme === item.id_uniforme)
@@ -75,7 +78,8 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
             const valorInt = parseInt(carrinho.armarios[x].numero)
             console.log("Valor recebido em mudarArmario:", valorInt)
             await mudarArmario(valorInt)
-            detalhesVendaArmario(valorInt, id_venda)
+            const id = await detalhesVendaArmario(valorInt, id_venda)
+            await salvarURL(id, arquivoPDF)
         }
     }
 

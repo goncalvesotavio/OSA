@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ClienteProvider } from '../context/ClienteContext';
-import Layout from './Layout';
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { ClienteProvider } from '../context/clienteContext'
+import { ArquivoProvider } from '../context/ArquivoContext'
+import Layout from './Layout'
 
 import TelaDescanso from '../pages/TelaDescanso';
 import PaginaInicial from '../pages/PaginaInicial';
@@ -26,6 +27,7 @@ import ArmarioAdicionado from '../pages/ArmarioAdicionado';
 function Routers() {
     return (
         <ClienteProvider>
+            <ArquivoProvider>
             <Routes>
                 <Route element={<Layout />}>
                     <Route path="/inicio" element={<PaginaInicial />} />
@@ -54,8 +56,9 @@ function Routers() {
 
                 <Route path="*" element={<Navigate to="/descanso" />} />
             </Routes>
+            </ArquivoProvider>
         </ClienteProvider>
-    );
+    )
 }
 
-export default Routers;
+export default Routers

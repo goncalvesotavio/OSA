@@ -6,6 +6,8 @@ import logoOsa from '/osaCompleto.png'
 import { fetchContrato } from '../components/fetchContratos'
 import { ClienteContext } from '../context/clienteContext'
 import { infosCliente } from '../components/fetchContratos'
+import { salvarArquivo } from '../components/fetchContratos'
+import { ArquivoContext } from '../context/ArquivoContext'
 
 const IconeTermos = () => (
     <svg className={styles.iconeCabecalho} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -22,6 +24,7 @@ export default function TermosUso() {
     const { limparCarrinho } = useContext(CarrinhoContext)
     const [aceito, setAceito] = useState(false)
     const { cliente } = useContext(ClienteContext)
+    const { adicionarArquivoContext } = useContext(ArquivoContext)
 
     const handleProceed = () => {
         navigate('/forma-pagamento')
@@ -52,16 +55,18 @@ export default function TermosUso() {
                     cliente: cliente
                 })
             })
-            if (!response.ok) throw new Error("Erro ao baixar documento");
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "saida.docx";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
+            if (!response.ok) throw new Error("Erro ao baixar documento")
+            const blob = await response.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = "Contrato_uso_2025_${cliente.Nome}.pdf"
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            window.URL.revokeObjectURL(url)
+            const urlBD = await salvarArquivo(blob)
+            adicionarArquivoContext(urlBD)
         } catch (error) {
             console.error(error)
             alert("Erro ao baixar documento")

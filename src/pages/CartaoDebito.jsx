@@ -9,6 +9,7 @@ import { ClienteContext } from '../context/clienteContext.jsx';
 import { AlertContext } from '../context/AlertContext';
 import { fetchUniformes, buscarDetalhesDoCarrinho } from '../components/fetchUniformes.jsx'
 import { procurarEmail } from '../components/fetchClientes'
+import { ArquivoContext } from '../context/ArquivoContext.jsx';
 
 export default function CartaoDebito() {
     const { carrinho, limparCarrinho } = useContext(CarrinhoContext);
@@ -20,6 +21,7 @@ export default function CartaoDebito() {
     const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [showModal, setShowModal] = useState(false)
+    const { arquivoPDF } = useContext(ArquivoContext)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -49,7 +51,7 @@ export default function CartaoDebito() {
         return () => clearTimeout(timer);
     }, [navigate, carrinho, cliente])
 
-    const finalizar = async (enviarEmail) => {
+    const finalizar = async (enviarEmail, arquivoPDF) => {
         setIsLoading(true);
         try {
             const pagamento = {
@@ -57,7 +59,7 @@ export default function CartaoDebito() {
                 pago: 'true'
             }
 
-            const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho)
+            const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, arquivoPDF)
             
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)
