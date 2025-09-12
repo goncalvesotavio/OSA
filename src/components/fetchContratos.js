@@ -34,3 +34,32 @@ export async function infosCliente(id_cliente) {
 
     return data
 }
+
+export async function salvarArquivo(file) {
+  const { data, error } = await supabase
+    .storage
+    .from("arquivos/Alunos")
+    .upload(`Contrato_Aramario_2025.pdf`, file)
+    showOverlay.value = false
+
+    if (error) {
+      console.log('Erro ao baixar PDF: ', error)
+      return null
+    }
+
+    return Image.Url.value = URL .createObjectURL(file)
+}
+
+export async function salvarURL(id_vendaArmario, url){
+  const { data, error } = await supabase
+    .from("Vendas_armarios")
+    .update([
+      {Contrato: url}
+    ])
+    .eq('id', id_vendaArmario)
+
+    if (error) {
+      console.log('Erro ao incerir PDF: ', error)
+      return null
+    }
+}
