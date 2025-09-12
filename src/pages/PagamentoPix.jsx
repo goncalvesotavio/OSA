@@ -57,7 +57,7 @@ export default function PagamentoPix() {
     }, [navigate, carrinho, cliente])
 
     const finalizar = async (enviarEmail) => {
-        setIsLoading(true);
+        setIsLoading(true)
         try {
             const pagamento = {
                 formaPagamento: 'Pix',
@@ -66,7 +66,7 @@ export default function PagamentoPix() {
 
             const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho)
 
-            await ativarImpressora(id_venda)
+            //await ativarImpressora(id_venda)
             
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)
@@ -78,8 +78,8 @@ export default function PagamentoPix() {
                 }
             }
             
-            showAlert("Compra finalizada!");
-            navigate('/descanso');
+            showAlert("Compra finalizada!")
+            navigate('/descanso')
 
         } catch (error) {
             console.error("Erro ao finalizar a compra:", error);

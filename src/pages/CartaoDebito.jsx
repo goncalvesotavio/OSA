@@ -59,7 +59,7 @@ export default function CartaoDebito() {
                 pago: 'true'
             }
 
-            const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, arquivoPDF)
+            const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho)
             
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)
