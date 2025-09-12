@@ -4,7 +4,7 @@ import styles from '../styles/PagamentoPix.module.css';
 import logoOsa from '/osaCompleto.png';
 import iconePix from '../assets/pix.png';
 import { CarrinhoContext } from '../context/CarrinhoContext';
-import { ClienteContext } from '../context/clienteContext';
+import { ClienteContext } from '../context/ClienteContext';
 import { AlertContext } from '../context/AlertContext';
 import { buscarDetalhesDoCarrinho, fetchUniformes } from '../components/fetchUniformes';
 import { finalizarCompra } from '../components/finalizarCompra';

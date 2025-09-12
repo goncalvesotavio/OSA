@@ -5,7 +5,7 @@ import logoOsa from '/osaCompleto.png';
 import iconeCartao from '../assets/cartao.png';
 import { finalizarCompra } from '../components/finalizarCompra';
 import { CarrinhoContext } from '../context/CarrinhoContext';
-import { ClienteContext } from '../context/clienteContext.jsx';
+import { ClienteContext } from '../context/ClienteContext.jsx';
 import { AlertContext } from '../context/AlertContext';
 import { fetchUniformes, buscarDetalhesDoCarrinho } from '../components/fetchUniformes.jsx'
 import { procurarEmail } from '../components/fetchClientes'
