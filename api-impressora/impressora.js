@@ -1,3 +1,11 @@
+import ThermalPrinter from "node-thermal-printer"
+import express from "express"
+import cors from "cors"
+
+const app = express()
+app.use(cors({ origin: "http://localhost:5173" }))
+app.use(express.json())
+
 app.post("/imprimir", async (req, res) => {
   try {
     const { carrinho, id_venda } = req.body;
@@ -18,31 +26,28 @@ app.post("/imprimir", async (req, res) => {
     printer.println("Obrigado por comprar pelo OSA!");
     printer.bold(false);
 
-const uniformes = carrinho?.detalhesUniformesFormatados || "";
-const armarios = carrinho?.detalhesArmarioFormatado || "";
-const extraUniformes = carrinho?.extraUniformes || "";
-const extra = carrinho?.extra || "";
+    const uniformes = carrinho?.detalhesUniformesFormatados || "";
+    const armarios = carrinho?.detalhesArmarioFormatado || "";
+    const extraUniformes = carrinho?.extraUniformes || "";
 
-if (uniformes && !armarios) {
-  printer.println("\n--- UNIFORMES ---");
-  printer.println(uniformes);
-  printer.println("\n" + extraUniformes);
-} else if (armarios && !uniformes) {
-  printer.println("\n--- ARMÁRIOS ---");
-  printer.println(armarios);
-} else if (armarios && uniformes) {
-  printer.println("\n--- UNIFORMES ---");
-  printer.println(uniformes);
-  printer.println("\n--- ARMÁRIOS ---");
-  printer.println(armarios);
-  printer.println("\n" + extraUniformes);
-}
+    if (uniformes && !armarios) {
+      printer.println("\n--- UNIFORMES ---");
+      printer.println(uniformes);
+      printer.println("\n" + extraUniformes);
+    } else if (armarios && !uniformes) {
+      printer.println("\n--- ARMÁRIOS ---");
+      printer.println(armarios);
+    } else if (armarios && uniformes) {
+      printer.println("\n--- UNIFORMES ---");
+      printer.println(uniformes);
+      printer.println("\n--- ARMÁRIOS ---");
+      printer.println(armarios);
+      printer.println("\n" + extraUniformes);
+    }
 
-if (extra) {
-  printer.println("\n" + extra);
-}
-
-console.log("Carrinho recebido na impressora:", carrinho);
+    if (carrinho?.extra) {
+      printer.println("\n" + carrinho.extra);
+    }
 
     printer.println("\nNúmero da venda: " + id_venda);
 
@@ -54,3 +59,5 @@ console.log("Carrinho recebido na impressora:", carrinho);
     res.status(500).send({ ok: false, error: err.message });
   }
 })
+
+app.listen(3001, () => console.log("Servidor rodando na porta 3001"))
