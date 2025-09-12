@@ -18,28 +18,31 @@ app.post("/imprimir", async (req, res) => {
     printer.println("Obrigado por comprar pelo OSA!");
     printer.bold(false);
 
-    const uniformes = carrinho?.detalhesUniformesFormatados || "";
-    const armarios = carrinho?.detalhesArmarioFormatado || "";
-    const extraUniformes = carrinho?.extraUniformes || "";
+const uniformes = carrinho?.detalhesUniformesFormatados || "";
+const armarios = carrinho?.detalhesArmarioFormatado || "";
+const extraUniformes = carrinho?.extraUniformes || "";
+const extra = carrinho?.extra || "";
 
-    if (uniformes && !armarios) {
-      printer.println("\n--- UNIFORMES ---");
-      printer.println(uniformes);
-      printer.println("\n" + extraUniformes);
-    } else if (armarios && !uniformes) {
-      printer.println("\n--- ARMÁRIOS ---");
-      printer.println(armarios);
-    } else if (armarios && uniformes) {
-      printer.println("\n--- UNIFORMES ---");
-      printer.println(uniformes);
-      printer.println("\n--- ARMÁRIOS ---");
-      printer.println(armarios);
-      printer.println("\n" + extraUniformes);
-    }
+if (uniformes && !armarios) {
+  printer.println("\n--- UNIFORMES ---");
+  printer.println(uniformes);
+  printer.println("\n" + extraUniformes);
+} else if (armarios && !uniformes) {
+  printer.println("\n--- ARMÁRIOS ---");
+  printer.println(armarios);
+} else if (armarios && uniformes) {
+  printer.println("\n--- UNIFORMES ---");
+  printer.println(uniformes);
+  printer.println("\n--- ARMÁRIOS ---");
+  printer.println(armarios);
+  printer.println("\n" + extraUniformes);
+}
 
-    if (carrinho?.extra) {
-      printer.println("\n" + carrinho.extra);
-    }
+if (extra) {
+  printer.println("\n" + extra);
+}
+
+console.log("Carrinho recebido na impressora:", carrinho);
 
     printer.println("\nNúmero da venda: " + id_venda);
 
@@ -50,4 +53,4 @@ app.post("/imprimir", async (req, res) => {
     console.error("Erro ao imprimir:", err);
     res.status(500).send({ ok: false, error: err.message });
   }
-})it 
+})
