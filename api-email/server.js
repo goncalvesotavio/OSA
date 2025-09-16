@@ -1,6 +1,7 @@
-import express from 'express';
+import express from 'express'
 import cors from 'cors'
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer'
+import axios from 'axios'
 
 const app = express();
 app.use(cors())
@@ -47,30 +48,42 @@ ${carrinho.extra || ''}
 });
 
 app.post('/enviar-email-termo-de-uso', async (req, res) => {
-  const { email, armario } = req.body
+  const { email, armarios } = req.body
 
   console.log('Body da requisição:', req.body)
 
   try {
+    const armariosArray = Array.isArray(armarios) ? armarios : [armarios]
+    const armariosUnicos = armariosArray.filter(
+      (armario, index, self) =>
+        index === self.findIndex(a => a.contratoUrl === armario.contratoUrl)
+    )
+
+    const attachments = await Promise.all(
+      armariosUnicos.map(async (armario) => {
+        const resp = await axios.get(armario.contratoUrl, { responseType: "arraybuffer" })
+        return {
+          filename: armario.contratoNome || "termo.pdf",
+          content: Buffer.from(resp.data, "binary"),
+          contentType: "application/pdf",
+        }
+      })
+    )
+
     let transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: 'osabentao@gmail.com', 
         pass: 'yeia ymes kggv xznh',  
       }
-    });
+    })
 
     let info = await transporter.sendMail({
       from: "OSA osabentao@gmail.com",
       to: email,
       subject: "Termo de uso do armário",
-      html: `<h2 style="color: black; font-family: Arial, sans-serif;">Termos de uso</h2>
-            <p style="color: black; font-family: Arial, sans-serif;">${armario}</p>
-            <p style="color: black; font-family: Arial, sans-serif;">Lorem ipsum dolor sit amet. Est sunt dolorem nam voluptatibus ducimus ut maiores aspernatur et eius quia qui iste quia et nemo explicabo. Aut voluptatem iure a earum minus aut laboriosam distinctio a itaque consequatur est labore nemo et quam autem et excepturi quia. Ut quam dolores ad vero nesciunt est amet facilis aut quam fugiat! Ab cupiditate rerum qui corrupti dolorum est debitis nesciunt.</p>
-            <p style="color: black; font-family: Arial, sans-serif;">Eum quos dolores ab officiis sint ut veniam quia et corrupti blanditiis. Vel iure quos ab quos voluptate aut voluptatem consectetur 33 laboriosam repudiandae et Quis quia et Quis quisquam. Nam deserunt dolorem vel repudiandae minima ex eligendi omnis et necessitatibus quia.</p>
-            <p style="color: black; font-family: Arial, sans-serif;">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
-            <p style="color: black; font-family: Arial, sans-serif;">Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>`
-    });
+      attachments
+    })
 
     console.log('Email enviado:', info.response);
     res.status(200).send({ sucesso: true, mensagem: 'Email enviado com sucesso!' });

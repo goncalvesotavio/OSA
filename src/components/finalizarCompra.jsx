@@ -3,14 +3,13 @@ import { buscarDetalhesDoCarrinho } from './fetchUniformes.jsx'
 import { mudarArmario } from './fetchArmarios.jsx'
 import { salvarURL } from './fetchContratos.js'
 import { ArquivoContext } from '../context/ArquivoContext.jsx'
-import { useContext } from 'react';
+import { useContext } from 'react'
 
-export async function finalizarCompra(pagamento, cliente, carrinho, produtos, limparCarrinho, arquivoPDF) {
-    
+export async function finalizarCompra(pagamento, cliente, carrinho, produtos, limparCarrinho, armarios) {    
     const totalUniformes = carrinho.uniformes.reduce((acc, item) => {
         const produto = produtos.find(p => p.id_uniforme === item.id_uniforme)
         return acc + (produto ? produto.Preço * item.quantidade : 0)
-    }, 0);
+    }, 0)
 
     const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 100), 0)
     const totalCompra = totalUniformes + totalArmarios
@@ -77,14 +76,21 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
         for (let x = 0; x < carrinho.armarios.length; x++){
             const valorInt = parseInt(carrinho.armarios[x].numero)
             console.log("Valor recebido em mudarArmario:", valorInt)
+            const idArmario = await detalhesVendaArmario(valorInt, id_venda)
             await mudarArmario(valorInt)
-            const id = await detalhesVendaArmario(valorInt, id_venda)
-            await salvarURL(id, arquivoPDF)
+
+            const armarioDoContexto = armarios.find(a => a.numero === valorInt)
+            if (!armarioDoContexto) {
+                console.warn("Armário não encontrado no contexto:", valorInt)
+                continue
+            }
+
+            salvarURL(idArmario, armarioDoContexto.contratoUrl)
         }
     }
 
     if (limparCarrinho) {
-        limparCarrinho();
+        limparCarrinho()
     }
 
     return id_venda

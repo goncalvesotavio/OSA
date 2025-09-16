@@ -79,5 +79,5 @@ export async function detalhesVendaArmario(n_armario, id_venda) {
       console.error('Erro ao inserir armário:', error.message);
     }
 
-    return data[0].id
+    return data[0]?.id
 }

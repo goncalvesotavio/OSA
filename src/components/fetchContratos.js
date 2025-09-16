@@ -35,30 +35,37 @@ export async function infosCliente(id_cliente) {
     return data
 }
 
-export async function salvarArquivo(file) {
-  const { data, error } = await supabase
-    .storage
-    .from("arquivos/Alunos")
-    .upload(`Contrato_Aramario_2025.pdf`, file)
+export async function salvarArquivo(file, nomeArquivo) {
+  try {
+    const filePath = `Alunos/${nomeArquivo}`; // caminho dentro do bucket
 
-    if (error) {
-      console.log('Erro ao baixar PDF: ', error)
-      return null
-    }
+    // Faz upload
+    const { error: uploadError } = await supabase.storage
+      .from("arquivos")
+      .upload(filePath, file, { upsert: true });
 
-    return Image.Url.value = URL .createObjectURL(file)
+    if (uploadError) throw uploadError;
+
+    // Cria URL pública
+    const { data } = supabase.storage.from("arquivos").getPublicUrl(filePath);
+    const publicUrl = data.publicUrl;
+
+    console.log("Arquivo salvo com sucesso:", publicUrl);
+    return publicUrl;
+  } catch (err) {
+    console.error("Erro ao salvar arquivo:", err);
+    return null;
+  }
 }
 
-export async function salvarURL(id_vendaArmario, url){
+export async function salvarURL(id, arquivoPDF) {
   const { data, error } = await supabase
-    .from("Vendas_armarios")
-    .update([
-      {Contrato: url}
-    ])
-    .eq('id', id_vendaArmario)
+    .from('Vendas_armários')
+    .update([{Contrato: arquivoPDF}])
+    .eq('id', id)
 
     if (error) {
-      console.log('Erro ao incerir PDF: ', error)
+      console.error('Erro ao salvar URL: ', error)
       return null
     }
 }

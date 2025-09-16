@@ -10,7 +10,7 @@ export async function fetchUniformes() {
       Img,
       Preço,
       Estoque_uniforme(Qtd_estoque)
-    `);
+    `)
 
   if (error || !data) {
     console.error('Erro ao buscar uniformes:', error);
@@ -25,10 +25,10 @@ export async function fetchUniformes() {
     return {
       ...item,
       esgotado: totalEstoque <= 0,
-    };
-  });
+    }
+  })
 
-  return produtos;
+  return produtos
 }
 
 export async function Camisas() {

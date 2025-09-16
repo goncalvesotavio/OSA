@@ -4,12 +4,14 @@ import { CarrinhoContext } from '../context/CarrinhoContext'; // Caminho corrigi
 import { buscarDetalhesDoCarrinho } from '../components/fetchUniformes';
 import styles from '../styles/ConfirmacaoCompra.module.css';
 import logoOsa from '/osaCompleto.png';
-import iconeArmario from '../assets/armarios.png';
+import iconeArmario from '../assets/armarios.png'
+import { ArquivoContext } from '../context/ArquivoContext';
 
 export default function ConfirmacaoCompra() {
     const { carrinho } = useContext(CarrinhoContext);
     const [uniformesDetalhado, setUniformesDetalhado] = useState([]);
-    const navigate = useNavigate();
+    const navigate = useNavigate()
+    const { adicionarArmariosContext } = useContext(ArquivoContext)
 
     useEffect(() => {
         async function carregarDetalhes() {

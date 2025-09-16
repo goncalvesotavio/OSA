@@ -18,45 +18,49 @@ app.use(express.json())
 
 app.post("/gera-doc", async (req, res) => {
   try {
-    const { contrato, cliente } = req.body
+    const { contrato, infos } = req.body
 
-    // Busca o template do contrato
     const response = await fetch(contrato)
     if (!response.ok) throw new Error("Falha ao baixar o arquivo do contrato")
     const templateBuffer = Buffer.from(await response.arrayBuffer())
     const zip = new PizZip(templateBuffer)
 
-    // Preenche os dados
+    console.log("Body recebido:", req.body)
+    console.log("Contrato recebido:", contrato)
+    console.log("Infos recebido:", infos)
+
     const doc = new Docxtemplater(zip)
     doc.render({
-      nome: cliente?.Nome,
-      rm: cliente?.RM,
-      curso: cliente?.Tipo_curso + " " + cliente?.Curso,
-      serie: cliente?.Serie,
+      nome: infos.Nome,
+      rm: infos.RM,
+      curso: infos.Curso,
+      serie: infos.Serie,
       data1: "X",
       data2: " ",
+      integrado: infos.integrado,
+      modular: infos.modular,
+      mtec: infos.mtec,
+      manha: infos.manha,
+      tarde: infos.tarde,
+      noite: infos.noite,
+      armario: infos.numero,
+      preco: infos.preco
     })
 
-    // Define caminhos
     const outputDocx = path.join(__dirname, "saida.docx")
 
-    // Cria nome seguro para o PDF
-    const safeNome = cliente.Nome.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "")
-    const outputPdfName = `Contrato_uso_2025_${safeNome}.pdf`
+    const outputPdfName = `${infos.Nome}.pdf`
     const outputPdf = path.join(__dirname, outputPdfName)
 
-    // Salva o docx temporário
     fs.writeFileSync(outputDocx, doc.getZip().generate({ type: "nodebuffer" }))
 
-    // Converte para PDF com LibreOffice
     await new Promise((resolve, reject) => {
       const pathToSoffice = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"`
       exec(
         `${pathToSoffice} --headless --convert-to pdf --outdir "${__dirname}" "${outputDocx}"`,
         (err, stdout, stderr) => {
           if (err) return reject(err)
-          // LibreOffice sempre gera o PDF com o mesmo nome do DOCX, então renomeamos
-          const generatedPdf = path.join(__dirname, "saida.pdf") // nome padrão gerado
+          const generatedPdf = path.join(__dirname, "saida.pdf")
           if (fs.existsSync(generatedPdf)) {
             fs.renameSync(generatedPdf, outputPdf)
           }
@@ -65,13 +69,11 @@ app.post("/gera-doc", async (req, res) => {
       )
     })
 
-    // Envia o PDF
     const pdfBuffer = fs.readFileSync(outputPdf)
     res.setHeader("Content-Type", "application/pdf")
     res.setHeader("Content-Disposition", `attachment; filename=${outputPdfName}`)
     res.send(pdfBuffer)
 
-    // Limpa arquivos temporários
     fs.unlinkSync(outputDocx)
     fs.unlinkSync(outputPdf)
 

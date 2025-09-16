@@ -9,6 +9,7 @@ import { AlertContext } from '../context/AlertContext';
 import { buscarDetalhesDoCarrinho, fetchUniformes } from '../components/fetchUniformes';
 import { finalizarCompra } from '../components/finalizarCompra';
 import { procurarEmail } from '../components/fetchClientes'
+import { ArquivoContext } from '../context/ArquivoContext';
 
 const IconeSetaAbaixo = () => (
     <svg className={styles.seta} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -27,6 +28,7 @@ export default function PagamentoPix() {
     const [email, setEmail] = useState('')
     const [showModal, setShowModal] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const { armarios } = useContext(ArquivoContext)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -64,7 +66,7 @@ export default function PagamentoPix() {
                 pago: 'true'
             }
 
-            const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho)
+            const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
 
             //await ativarImpressora(id_venda)
             
@@ -73,9 +75,7 @@ export default function PagamentoPix() {
             }
 
             if (carrinho.armarios.length > 0) {
-                for (const armario of carrinho.armarios) {
-                    await handleEnviarTermoUso(armario.nome);
-                }
+                await handleEnviarTermoUso()
             }
             
             showAlert("Compra finalizada!")
@@ -89,20 +89,27 @@ export default function PagamentoPix() {
         }
     }
 
-    async function handleEnviarTermoUso(armario) {
+    async function handleEnviarTermoUso() {
         try {
+            const armariosArray = carrinho.armarios.map(a => {
+                const valorInt = parseInt(a.numero)
+                return armarios.find(ar => ar.numero === valorInt)
+            }).filter(Boolean) 
+
             const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, armario }),
-            });
+                body: JSON.stringify({ email, armarios: armariosArray }),
+            })
+
             if (!response.ok) throw new Error('Falha ao enviar termo de uso');
-            console.log('Termo de uso enviado com sucesso.');
+            console.log('Termos de uso enviados com sucesso.');
         } catch (error) {
             console.error('Erro ao enviar termos de uso:', error);
             showAlert('Falha ao enviar termos de uso.');
         }
     }
+
 
     async function infos(id_venda) {
         const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);

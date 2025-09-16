@@ -24,7 +24,8 @@ export default function TermosUso() {
     const { limparCarrinho } = useContext(CarrinhoContext)
     const [aceito, setAceito] = useState(false)
     const { cliente } = useContext(ClienteContext)
-    const { adicionarArquivoContext } = useContext(ArquivoContext)
+    const { adicionarArquivoContext, adicionarInfosContext, infos, adicionarArmariosContext, armarios } = useContext(ArquivoContext)
+    const { carrinho } = useContext(CarrinhoContext)
 
     const handleProceed = () => {
         navigate('/forma-pagamento')
@@ -37,36 +38,42 @@ export default function TermosUso() {
 
     const handleDownloadDoc = async () => {
         try {
-            const contrato = await fetchContrato(new Date().getFullYear())
-            const caminhoContrato = contrato[0]?.Contrato
+            
             const clienteArray = await buscarCliente()
             const cliente = clienteArray[0]
+            adicionarInfosContext(cliente)
+            
+            for (let i = 0; i < carrinho.armarios.length; i++) {
+            const contrato = await fetchContrato(new Date().getFullYear())
+            const caminhoContrato = contrato[0]?.Contrato
             if (!contrato) {
                 alert("Contrato não encontrado!")
                 return
-            } else {
-                console.log(contrato)
             }
+
             const response = await fetch("http://localhost:4000/gera-doc", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     contrato: caminhoContrato, 
-                    cliente: cliente
+                    infos: { ...infos, ...cliente, ...carrinho.armarios[i] }
                 })
             })
+
             if (!response.ok) throw new Error("Erro ao baixar documento")
             const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement("a")
-            a.href = url
-            a.download = "Contrato_uso_2025_${cliente.Nome}.pdf"
-            document.body.appendChild(a)
-            a.click()
-            a.remove()
-            window.URL.revokeObjectURL(url)
-            const urlBD = await salvarArquivo(blob)
-            adicionarArquivoContext(urlBD)
+            const nomeArquivo = `Contrato_uso_2025_${carrinho.armarios[i].numero}.pdf`
+
+            const urlBD = await salvarArquivo(blob, nomeArquivo)
+
+            adicionarArmariosContext({
+                numero: carrinho.armarios[i].numero,
+                preco: carrinho.armarios[i].preco,
+                contratoUrl: urlBD,
+                contratoNome: nomeArquivo
+            })
+        }
+
         } catch (error) {
             console.error(error)
             alert("Erro ao baixar documento")
@@ -109,5 +116,5 @@ export default function TermosUso() {
             </main>
             <img src={logoOsa} alt="Logo OSA" className={styles.logoCanto} />
         </div>
-    );
+    )
 }

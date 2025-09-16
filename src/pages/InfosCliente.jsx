@@ -6,7 +6,8 @@ import { ClienteContext } from '../context/ClienteContext';
 import { CarrinhoContext } from '../context/CarrinhoContext';
 import { AlertContext } from '../context/AlertContext';
 import TecladoVirtual from '../components/TecladoVirtual';
-import logoOsa from '/osaCompleto.png';
+import logoOsa from '/osaCompleto.png'
+import { ArquivoContext } from '../context/ArquivoContext';
 
 export default function InfosCliente() {
     const navigate = useNavigate();
@@ -21,7 +22,8 @@ export default function InfosCliente() {
     
     const { adicionarClienteContext } = useContext(ClienteContext);
     const { carrinho } = useContext(CarrinhoContext);
-    const { showAlert } = useContext(AlertContext);
+    const { showAlert } = useContext(AlertContext)
+    const { adicionarInfosContext } = useContext(ArquivoContext)
 
     const [inputAtivo, setInputAtivo] = useState(null);
     const nomeInputRef = useRef(null);
@@ -32,8 +34,8 @@ export default function InfosCliente() {
     const serieSelectRef = useRef(null);
     const moduloSelectRef = useRef(null);
 
-    const cursosMtec = ["Administração - PI", "Administração - Noturno", "Logística - PI", "Desenvolvimento de Sistemas - MTEC", "Desenvolvimento de Sistemas - MTEC/AMS", "Desenvolvimento de Sistemas - Noturno", "Eletrônica - PI", "Eletrotécnica - MTEC", "Mecânica - PI"];
-    const cursosModular = ["Contabilidade", "Eletrônica", "Eletrotécnica", "Mecânica"];
+    const cursosMtec = ["Administração - PI", "Administração - Noturno", "Logística - PI", "Desenvolvimento de Sistemas - MTEC", "Desenvolvimento de Sistemas - MTEC/AMS", "Desenvolvimento de Sistemas - Noturno", "Eletrônica - PI", "Eletrotécnica - MTEC", "Mecânica - PI"]
+    const cursosModular = ["Contabilidade", "Eletrônica", "Eletrotécnica", "Mecânica"]
 
     const handleFocus = (inputName) => {
         setInputAtivo(inputName);
@@ -140,10 +142,75 @@ export default function InfosCliente() {
                     }
 
                     if (tipoCurso === 'Integrado ao Ensino Médio - MTEC') {
-                        clienteUpdate.serie = serie;
+                        clienteUpdate.serie = serie
+
+                        const resultadoPI = cursosMtec.filter(curso =>
+                        curso.toLowerCase().includes("PI".toLowerCase())
+                    )
+
+                    const resultadoMtec = cursosMtec.filter(curso =>
+                        curso.toLowerCase().includes("MTEC".toLowerCase())
+                    )
+
+                    const resultadoNoturno = cursosMtec.filter(curso =>
+                        curso.toLowerCase().includes("Noturno".toLowerCase())
+                    )
+
+                    let infosContrato = {}
+
+                    if (resultadoPI.includes(curso)) {
+                        infosContrato = ({
+                            integrado: "x",
+                            modular: " ",
+                            mtec: " ",
+                            manha: " ",
+                            tarde: " ",
+                            noite: " ",
+                        })
+                    } else if (resultadoMtec.includes(curso) && curso !== "Desenvolvimento de Sistemas - MTEC/AMS") {
+                        infosContrato = ({
+                            integrado: " ",
+                            modular: " ",
+                            mtec: "x",
+                            manha: "x",
+                            tarde: " ",
+                            noite: " ",
+                        })
+                    } else if (resultadoNoturno.includes(curso)) {
+                        infosContrato = ({
+                            integrado: " ",
+                            modular: " ",
+                            mtec: "x",
+                            manha: " ",
+                            tarde: " ",
+                            noite: "x",
+                        })
+                    } else if (curso === "Desenvolvimento de Sistemas - MTEC/AMS") {
+                        infosContrato = ({
+                            integrado: " ",
+                            modular: " ",
+                            mtec: "x",
+                            manha: " ",
+                            tarde: "x",
+                            noite: " ",
+                        })
+                    }
+
+                    adicionarInfosContext(infosContrato)
                     }
                     if (tipoCurso === 'Modular') {
-                        clienteUpdate.serie = modulo;
+                        clienteUpdate.serie = modulo
+
+                        const infosContrato = ({
+                        integrado: " ",
+                        modular: "x",
+                        mtec: " ",
+                        manha: " ",
+                        tarde: " ",
+                        noite: " ",
+                    })
+
+                    adicionarInfosContext(infosContrato)
                     }
 
                     atualizarCliente(clienteExiste.id_cliente, clienteUpdate)
@@ -168,10 +235,73 @@ export default function InfosCliente() {
                 clienteNovo.tipoCurso = tipoCurso
                 clienteNovo.curso = curso
                 if (tipoCurso === 'Integrado ao Ensino Médio - MTEC') {
-                    clienteNovo.serie = serie;
+                    clienteNovo.serie = serie
+                    const resultadoPI = cursosMtec.filter(curso =>
+                        curso.toLowerCase().includes("PI".toLowerCase())
+                    )
+
+                    const resultadoMtec = cursosMtec.filter(curso =>
+                        curso.toLowerCase().includes("MTEC".toLowerCase())
+                    )
+
+                    const resultadoNoturno = cursosMtec.filter(curso =>
+                        curso.toLowerCase().includes("Noturno".toLowerCase())
+                    )
+
+                    let infosContrato = {}
+
+                    if (resultadoPI.includes(curso)) {
+                        infosContrato = ({
+                            integrado: "x",
+                            modular: " ",
+                            mtec: " ",
+                            manha: " ",
+                            tarde: " ",
+                            noite: " ",
+                        })
+                    } else if (resultadoMtec.includes(curso) && curso !== "Desenvolvimento de Sistemas - MTEC/AMS") {
+                        infosContrato = ({
+                            integrado: " ",
+                            modular: " ",
+                            mtec: "x",
+                            manha: "x",
+                            tarde: " ",
+                            noite: " ",
+                        })
+                    } else if (resultadoNoturno.includes(curso)) {
+                        infosContrato = ({
+                            integrado: " ",
+                            modular: " ",
+                            mtec: "x",
+                            manha: " ",
+                            tarde: " ",
+                            noite: "x",
+                        })
+                    } else if (curso === "Desenvolvimento de Sistemas - MTEC/AMS") {
+                        infosContrato = ({
+                            integrado: " ",
+                            modular: " ",
+                            mtec: "x",
+                            manha: " ",
+                            tarde: "x",
+                            noite: " ",
+                        })
+                    }
+
+                    adicionarInfosContext(infosContrato)
                 }
                 if (tipoCurso === 'Modular') {
-                    clienteNovo.serie = modulo;
+                    clienteNovo.serie = modulo
+                    const infosContrato = ({
+                        integrado: " ",
+                        modular: "x",
+                        mtec: " ",
+                        manha: " ",
+                        tarde: " ",
+                        noite: " ",
+                    })
+
+                    adicionarInfosContext(infosContrato)
                 }
             }
 
