@@ -9,6 +9,7 @@ import { ClienteContext } from '../context/ClienteContext.jsx';
 import { AlertContext } from '../context/AlertContext';
 import { fetchUniformes, buscarDetalhesDoCarrinho } from '../components/fetchUniformes.jsx'
 import { procurarEmail } from '../components/fetchClientes'
+import { ArquivoContext } from '../context/ArquivoContext';
 
 export default function CartaoCredito() {
     const { carrinho, limparCarrinho } = useContext(CarrinhoContext);
@@ -20,6 +21,7 @@ export default function CartaoCredito() {
     const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [showModal, setShowModal] = useState(false)
+    const { armarios } = useContext(ArquivoContext)
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -58,10 +60,10 @@ export default function CartaoCredito() {
                     pago: 'true'
                 }
     
-                const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho)
+                const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
                 
                 if (enviarEmail) {
-                    await handleEnviarComprovante(id_venda)
+                    await handleEnviarComprovante()
                 }
     
                 if (carrinho.armarios.length > 0) {
@@ -81,20 +83,26 @@ export default function CartaoCredito() {
             }
         }
     
-        async function handleEnviarTermoUso(armario) {
-            try {
-                const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, armario }),
-                });
-                if (!response.ok) throw new Error('Falha ao enviar termo de uso');
-                console.log('Termo de uso enviado com sucesso.');
-            } catch (error) {
-                console.error('Erro ao enviar termos de uso:', error);
-                showAlert('Falha ao enviar termos de uso.');
-            }
+    async function handleEnviarTermoUso() {
+        try {
+            const armariosArray = carrinho.armarios.map(a => {
+                const valorInt = parseInt(a.numero)
+                return armarios.find(ar => ar.numero === valorInt)
+            }).filter(Boolean) 
+
+            const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, armarios: armariosArray }),
+            })
+
+            if (!response.ok) throw new Error('Falha ao enviar termo de uso');
+            console.log('Termos de uso enviados com sucesso.');
+        } catch (error) {
+            console.error('Erro ao enviar termos de uso:', error);
+            showAlert('Falha ao enviar termos de uso.');
         }
+    }
     
         async function handleEnviarComprovante(id_venda){
             try {

@@ -65,12 +65,13 @@ export async function editarEstoque(infosEstoque) {
   }
 }
 
-export async function detalhesVendaArmario(n_armario, id_venda) {
+export async function detalhesVendaArmario(n_armario, id_venda, hora) {
   const { data, error } = await supabase
     .from('Vendas_armários')
     .insert([
       {N_armario: n_armario,
-       id_venda: id_venda
+       id_venda: id_venda,
+       Hora_compra: hora
       }
     ])
     .select('id')

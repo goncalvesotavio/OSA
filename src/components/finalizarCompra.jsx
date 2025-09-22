@@ -19,7 +19,8 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
         return
     }
 
-    const dataFormatada = new Date().toISOString().split('T')[0]
+    const agora = new Date()
+    const dataFormatada = agora.toISOString().split('T')[0]
 
     let finalizada
     if (carrinho.uniformes.length > 0 || pagamento.formaPagamento === 'Dinheiro'){
@@ -68,7 +69,7 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
                 tamanho: Estoque.Tamanho,
                 novaQtd: Estoque.Qtd_estoque - infosDetalhes.qtd
             };
-            await editarEstoque(infosEstoque);
+            await editarEstoque(infosEstoque)
         }
     }
     
@@ -76,7 +77,8 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
         for (let x = 0; x < carrinho.armarios.length; x++){
             const valorInt = parseInt(carrinho.armarios[x].numero)
             console.log("Valor recebido em mudarArmario:", valorInt)
-            const idArmario = await detalhesVendaArmario(valorInt, id_venda)
+            const hora = agora.toLocaleTimeString()
+            const idArmario = await detalhesVendaArmario(valorInt, id_venda, hora)
             await mudarArmario(valorInt)
 
             const armarioDoContexto = armarios.find(a => a.numero === valorInt)

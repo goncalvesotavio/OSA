@@ -51,7 +51,7 @@ export default function TermosUso() {
                 return
             }
 
-            const response = await fetch("http://localhost:4000/gera-doc", {
+            const response = await fetch("http://localhost:3000/gera-doc", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
