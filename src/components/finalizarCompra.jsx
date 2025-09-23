@@ -77,7 +77,7 @@ export async function finalizarCompra(pagamento, cliente, carrinho, produtos, li
         for (let x = 0; x < carrinho.armarios.length; x++){
             const valorInt = parseInt(carrinho.armarios[x].numero)
             console.log("Valor recebido em mudarArmario:", valorInt)
-            const hora = agora.toLocaleTimeString()
+            const hora = agora.toISOString()
             const idArmario = await detalhesVendaArmario(valorInt, id_venda, hora)
             await mudarArmario(valorInt)
 
