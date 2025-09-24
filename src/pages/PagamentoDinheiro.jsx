@@ -124,10 +124,10 @@ export default function PagamentoDinheiro() {
                 itensParaEmail = { uniformes: detalhesUniformesFormatados, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
                 assunto = "Compra de uniformes da ETEC Bento Quirino";
             } else if (carrinho.armarios.length > 0 && carrinho.uniformes.length === 0) {
-                itensParaEmail = { armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra };
+                itensParaEmail = { armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nVocê tem 1 hora para efetuar o pagamento sob risco de perda do armário adiquirido`};
                 assunto = "Aluguel de armário(s) da ETEC Bento Quirino";
             } else {
-                itensParaEmail = { uniformes: detalhesUniformesFormatados, armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
+                itensParaEmail = { uniformes: detalhesUniformesFormatados, armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)\nVocê tem 1 hora para efetuar o pagamento sob risco de perda do armário adiquirido` };
                 assunto = "Compra de uniformes e aluguel de armários da ETEC Bento Quirino";
             }
 
