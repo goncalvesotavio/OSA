@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CarrinhoContext } from '../context/CarrinhoContext'
 import styles from '../styles/TermosUso.module.css'
@@ -8,6 +8,7 @@ import { ClienteContext } from '../context/ClienteContext'
 import { infosCliente } from '../components/fetchContratos'
 import { salvarArquivo } from '../components/fetchContratos'
 import { ArquivoContext } from '../context/ArquivoContext'
+import { procurarDatas } from '../components/fetchArmarios'
 
 const IconeTermos = () => (
     <svg className={styles.iconeCabecalho} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -25,7 +26,8 @@ export default function TermosUso() {
     const [aceito, setAceito] = useState(false)
     const { cliente } = useContext(ClienteContext)
     const { adicionarArquivoContext, adicionarInfosContext, infos, adicionarArmariosContext, armarios } = useContext(ArquivoContext)
-    const { carrinho } = useContext(CarrinhoContext)
+    const { carrinho, adicionarArmario } = useContext(CarrinhoContext)
+    const [data, setData] = useState()
 
     const handleProceed = () => {
         navigate('/forma-pagamento')
@@ -82,6 +84,9 @@ export default function TermosUso() {
         navigate('/forma-pagamento')
     }
 
+    useEffect(() => {
+        const datas = procurarDatas(new Date().getFullYear())
+    })
 
     return (
         <div className={styles.paginaTermos}>

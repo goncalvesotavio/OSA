@@ -38,3 +38,19 @@ export async function mudarArmario(n_armario) {
         return [];
     }
 }
+
+export async function procurarDatas(ano) {
+  const { data, error } = await supabase
+    .from('Contratos_armários')
+    .select(`
+      Data_anual,,
+      Data_semestral
+    `)
+    .eq('Ano', ano)
+
+  if (error) {
+    console.error("Erro ao buscar datas: ", error)
+  }
+
+  return data
+}
