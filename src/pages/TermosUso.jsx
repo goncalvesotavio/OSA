@@ -97,10 +97,28 @@ export default function TermosUso() {
             </header>
             <main className={styles.containerTermos}>
                 <div className={styles.textoTermos}>
-                    <p>Lorem ipsum dolor sit amet. Est sunt dolorem nam voluptatibus ducimus ut maiores aspernatur et eius quia qui iste quia et nemo explicabo. Aut voluptatem iure a earum minus aut laboriosam distinctio a itaque consequatur est labore nemo et quam autem et excepturi quia. Ut quam dolores ad vero nesciunt est amet facilis aut quam fugiat! Ab cupiditate rerum qui corrupti dolorum est debitis nesciunt.</p>
-                    <p>Eum quos dolores ab officiis sint ut veniam quia et corrupti blanditiis. Vel iure quos ab quos voluptate aut voluptatem consectetur 33 laboriosam repudiandae et Quis quia et Quis quisquam. Nam deserunt dolorem vel repudiandae minima ex eligendi omnis et necessitatibus quia.</p>
-                    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
-                    <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+                  <ul>
+                    <li>O armário é da escola. A aquisição de armários na ETEC Bento Quirino é feita pela administração da Escola, sob total responsabilidade da mesma;</li>
+                    <li>Os horários de venda dos armários serão divulgados no mural da Secretaria no pátio, no site da escola e no facebook;</li>
+                    <li>Impreterivelmente, até o dia <strong>19 de dezembro (anual) ou 11 de julho (semestral)</strong>, todos os armários deverão ser desocupados, inclusive os livros devem ser retirados e entregues a coordenação do núcleo comum, para passarem por limpeza e manutenção e serem reorganizados para o ano seguinte. Assim, o aluno deve retirar todos os seus pertences ao fim do ano letivo. A escola não se responsabilizará por pertences deixados nos armários;</li>
+                    <li><strong>Materiais que permanecerem nos armários após o prazo para retirada dos mesmos, serão doados;</strong></li>
+                    <li>A escola se reserva o direito de abrir qualquer armário em caso de necessidade;</li>
+                    <li>Por amostragem será feita a vistoria nos armários dos alunos, em qualquer dia e horário, sendo que o mesmo deverá abrir e acompanhar a vistoria de seu armário, diante de um membro da equipe diretiva ou coordenação, registrando-se na ficha individual as eventuais irregularidades que serão também levadas ao conhecimento de seus pais ou responsáveis;</li>
+                    <li><strong>É PROIBIDO colar adesivos, escrever, desenhar ou fazer qualquer tipo de anotação na porta dos armários ou em qualquer parte da estrutura do mesmo. Se trata de um patrimônio público;</strong></li>
+                    <li>É vedada a colocação de qualquer objeto na parte externa, em cima ou em baixo dos armários;</li>
+                    <li>O cadeado para segurança das portas de cada armário é de total responsabilidade do aluno que contratou o serviço;</li>
+                    <li>Não será de responsabilidade da administração da escola, o desaparecimento de objetos ou pertences dentro de armários sem cadeado;</li>
+                    <li>Não é permitido armazenar ou guardar ALIMENTOS dentro dos armários ou qualquer objetivo que gere mal cheiro;</li>
+                    <li>Os armários devem ser usados somente para guardar material didático;</li>
+                    <li>Para não dificultar o andamento das aulas, os armários deverão ser utilizados somente no horário que o aluno não estiver em aula;</li>
+                    <li>Questões referentes à manutenção ou problemas nos armários devem ser protocoladas na secretaria, que serão direcionadas para providencia;</li>
+                    <li>O aluno deverá devolver o armário nas condições em que o recebeu, ou seja, em perfeito estado de conservação e limpeza, até o dia 20 de dezembro (anual) ou 05 de julho (semestral);</li>
+                    <li>É vedada a troca de armários entre alunos;</li>
+                    <li>É vedada a abertura e/ou manuseio do conteúdo de qualquer armário que não seja o atribuído pela administração da escola ao aluno;</li>
+                    <li>Eventuais custos com reparo do armário, devido à utilização inadequada, serão cobrados do(s) usuário(s).
+Em caso de pandemia, terremoto, catástrofes naturais ou algo do tipo que não sejam de responsabilidade da APM ou da Etec Bento Quirino, impossibilitando o uso do armário em um determinado período de tempo, não nos responsabilizamos pela devolução do dinheiro investido.</li>
+                  </ul>
+                  <p><strong>Lembre-se, hoje você esta usando o armário, amanhã outros utilizarão.</strong></p>  
                 </div>
                 <div className={styles.areaCheckbox}>
                     <input
