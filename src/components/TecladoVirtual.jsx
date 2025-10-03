@@ -3,10 +3,10 @@ import styles from '../styles/TecladoVirtual.module.css';
 
 // Layout do teclado
 const layout = [
-  ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '@', '.'],
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '@', '_'],
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'backspace'],
   ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'enter'],
-  ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '_', '-'],
+  ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '.', '-'],
   ['space']
 ];
 
