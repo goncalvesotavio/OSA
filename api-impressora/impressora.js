@@ -13,7 +13,7 @@ app.post("/imprimir", async (req, res) => {
 
     let printer = new ThermalPrinter.printer({
       type: "epson",
-      interface: "/dev/usb/lb1", 
+      interface: "/dev/usb/lp1", 
       characterSet: "SLOVENIA"
     })
 
@@ -51,6 +51,8 @@ app.post("/imprimir", async (req, res) => {
     printer.println("\nNúmero da venda: " + id_venda)
 
     printer.cut()
+
+    await printer.printImage('/osaCompleto.png')
 
     await printer.execute()
 

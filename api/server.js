@@ -144,7 +144,8 @@ app.post("/gera-doc", async (req, res) => {
     fs.writeFileSync(outputDocx, doc.getZip().generate({ type: "nodebuffer" }))
 
     await new Promise((resolve, reject) => {
-      const pathToSoffice = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"`
+      const pathToSoffice = `"C:\\Program Files\\LibreOffice\\program\\soffice.exe"` //windows
+      //const pathToSoffice = `"/usr/bin/soffice"` //linux
       exec(
         `${pathToSoffice} --headless --convert-to pdf --outdir "${__dirname}" "${outputDocx}"`,
         (err, stdout, stderr) => {
