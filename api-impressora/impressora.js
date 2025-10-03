@@ -13,7 +13,7 @@ app.post("/imprimir", async (req, res) => {
 
     let printer = new ThermalPrinter.printer({
       type: "epson",
-      interface: "/dev/usb/lb1", // conferir
+      interface: "/dev/usb/lb1", 
       characterSet: "SLOVENIA"
     })
 
@@ -29,11 +29,11 @@ app.post("/imprimir", async (req, res) => {
     const armarios = carrinho?.detalhesArmarioFormatado || ""
     const extraUniformes = carrinho?.extraUniformes || ""
 
-    if (uniformes && !armarios) {
+    if (uniformes && armarios.length == 0) {
       printer.println("\n--- UNIFORMES ---")
       printer.println(uniformes);
       printer.println("\n" + extraUniformes)
-    } else if (armarios && !uniformes) {
+    } else if (armarios && uniformes.length == 0) {
       printer.println("\n--- ARMÁRIOS ---")
       printer.println(armarios);
     } else if (armarios && uniformes) {
