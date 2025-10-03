@@ -1,6 +1,8 @@
 import ThermalPrinter from "node-thermal-printer"
 import express from "express"
 import cors from "cors"
+import path from "path"
+import { fileURLToPath } from "url"
 
 const app = express()
 app.use(cors({ origin: "http://localhost:5173" }))
@@ -50,9 +52,21 @@ app.post("/imprimir", async (req, res) => {
 
     printer.println("\nNúmero da venda: " + id_venda)
 
-    printer.cut()
+    printer.newLine()
+    printer.newLine()
+    printer.newLine()
 
-    await printer.printImage('/osaCompleto.png')
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
+
+    await printer.printImage(path.join(__dirname, "public", "osaCompleto.png"))
+
+    printer.alignCenter()
+    printer.bold(true)
+    printer.println("VOTE NO OSA!\nPROJETO Nº58!")
+    printer.bold(false)
+
+    printer.cut()
 
     await printer.execute()
 

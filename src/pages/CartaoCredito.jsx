@@ -82,6 +82,36 @@ export default function CartaoCredito() {
                 setIsLoading(false);
             }
         }
+
+    async function infos(id_venda) {
+        const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
+    
+        let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)";
+
+        let detalhesUniformesFormatados = "";
+        if (detalhesUniformes.length > 0) {
+            detalhesUniformesFormatados = "Uniforme(s) adquirido(s):"
+            detalhesUniformes.forEach(peca => {
+                detalhesUniformesFormatados += `\n${peca.Nome}\nTamanho: ${peca.Tamanho}\nQuantidade: ${peca.quantidade}\nPreço unitário: R$${peca.Preço}\nPreço total: R$${peca.quantidade * peca.Preço}\n`;
+            })
+        }
+
+        let detalhesArmarioFormatado = "";
+        if (carrinho.armarios.length > 0) {
+            detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
+            carrinho.armarios.forEach(armario => {
+                detalhesArmarioFormatado += `${armario.nome}\nCorredor: ${armario.corredor}\nPerto da(s) sala(s): ${armario.salaInfo}\nTotal: R$${armario.preco}\n`;
+            })
+        }
+
+        const totalUniformes = detalhesUniformes.reduce((acc, item) => acc + (item.Preço * item.quantidade), 0);
+        const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 0), 0);
+        const totalCompra = totalUniformes + totalArmarios;
+
+        let extra = `Forma de pagamento: Crédito\nTotal da compra: R$${totalCompra.toFixed(2)}`;
+
+        return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
+    }
     
     async function handleEnviarTermoUso() {
         try {
@@ -147,6 +177,16 @@ export default function CartaoCredito() {
                 alert('Falha ao enviar comprovante.');
             }
         }
+
+    async function ativarImpressora(id_venda) {
+        let itensParaComprovante = await infos(id_venda)
+
+        await fetch("http://localhost:3001/imprimir", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ carrinho: itensParaComprovante, id_venda })
+        })
+    }
 
     return (
         <div className={styles.paginaCartaoCredito}>

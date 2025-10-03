@@ -143,7 +143,6 @@ export default function PagamentoPix() {
 
     async function handleEnviarComprovante(id_venda){
         try {
-        // Aguarde o resultado da função infos
             const {
                 detalhesUniformesFormatados,
                 detalhesArmarioFormatado,

@@ -82,6 +82,36 @@ export default function PagamentoDinheiro() {
         }
     }
 
+    async function infos(id_venda) {
+            const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
+        
+            let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)";
+    
+            let detalhesUniformesFormatados = "";
+            if (detalhesUniformes.length > 0) {
+                detalhesUniformesFormatados = "Uniforme(s) adquirido(s):"
+                detalhesUniformes.forEach(peca => {
+                    detalhesUniformesFormatados += `\n${peca.Nome}\nTamanho: ${peca.Tamanho}\nQuantidade: ${peca.quantidade}\nPreço unitário: R$${peca.Preço}\nPreço total: R$${peca.quantidade * peca.Preço}\n`;
+                })
+            }
+    
+            let detalhesArmarioFormatado = "";
+            if (carrinho.armarios.length > 0) {
+                detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
+                carrinho.armarios.forEach(armario => {
+                    detalhesArmarioFormatado += `${armario.nome}\nCorredor: ${armario.corredor}\nPerto da(s) sala(s): ${armario.salaInfo}\nTotal: R$${armario.preco}\n`;
+                })
+            }
+    
+            const totalUniformes = detalhesUniformes.reduce((acc, item) => acc + (item.Preço * item.quantidade), 0);
+            const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 0), 0);
+            const totalCompra = totalUniformes + totalArmarios;
+    
+            let extra = `Forma de pagamento: Dinheiro\nDirija-se à secretaria para realizar o pagamento ou efetue-o no momento da retirada da compra\nTotal da compra: R$${totalCompra.toFixed(2)}`;
+    
+            return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
+        }
+
     async function handleEnviarTermoUso() {
         try {
             const armariosArray = carrinho.armarios.map(a => {
@@ -105,46 +135,56 @@ export default function PagamentoDinheiro() {
 
     async function handleEnviarComprovante(id_venda){
         try {
-            const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
-            let itensParaEmail = {}
-            let assunto = ""
-            let extra = "Forma de pagamento: Dinheiro\nDirija-se à secretaria para realizar o pagamento ou efetue-o no momento da retirada da compra"
+            const {
+                detalhesUniformesFormatados,
+                detalhesArmarioFormatado,
+                extra,
+                extraUniformes
+            } = await infos(id_venda);
 
-            let detalhesUniformesFormatados = "Uniforme(s) adquirido(s):";
-            detalhesUniformes.forEach(peca => {
-                detalhesUniformesFormatados += `\n${peca.Nome}\nTamanho: ${peca.Tamanho}\nQuantidade: ${peca.quantidade}\nPreço unitário: ${peca.Preço}\nPreço total: ${peca.quantidade * peca.Preço}\n`;
-            });
-
-            let detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
-            carrinho.armarios.forEach(armario => {
-                detalhesArmarioFormatado += `${armario.nome}\nCorredor: ${armario.corredor}\nPerto da(s) sala(s): ${armario.salaInfo}\n`;
-            });
+            let itensParaEmail = {};
+            let assunto = "";
 
             if (carrinho.uniformes.length > 0 && carrinho.armarios.length === 0) {
-                itensParaEmail = { uniformes: detalhesUniformesFormatados, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)` };
+                itensParaEmail = { uniformes: detalhesUniformesFormatados, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + extraUniformes };
                 assunto = "Compra de uniformes da ETEC Bento Quirino";
             } else if (carrinho.armarios.length > 0 && carrinho.uniformes.length === 0) {
-                itensParaEmail = { armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nVocê tem 1 hora para efetuar o pagamento sob risco de perda do armário adiquirido`};
+                itensParaEmail = { armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra };
                 assunto = "Aluguel de armário(s) da ETEC Bento Quirino";
             } else {
-                itensParaEmail = { uniformes: detalhesUniformesFormatados, armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + `\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)\nVocê tem 1 hora para efetuar o pagamento sob risco de perda do armário adiquirido` };
+                itensParaEmail = { uniformes: detalhesUniformesFormatados, armarios: detalhesArmarioFormatado, total: `Total da compra: ${total.toFixed(2)}\n`, extra: extra + extraUniformes };
                 assunto = "Compra de uniformes e aluguel de armários da ETEC Bento Quirino";
             }
 
-            const response = await fetch('http://localhost:3000/enviar-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, carrinho: itensParaEmail, assunto, id_venda}),
-            });
+            const response = await fetch("http://localhost:3000/enviar-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email,
+                    assunto,
+                    id_venda,
+                    carrinho: itensParaEmail
+                })
+            })
 
             if (!response.ok) throw new Error('Falha ao enviar comprovante');
-            
+        
             console.log('Email enviado com sucesso.')
             alert('Comprovante enviado por email!')
         } catch (error) {
             console.error('Erro ao enviar comprovante:', error);
             alert('Falha ao enviar comprovante.');
         }
+    }
+
+    async function ativarImpressora(id_venda) {
+        let itensParaComprovante = await infos(id_venda)
+
+        await fetch("http://localhost:3001/imprimir", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ carrinho: itensParaComprovante, id_venda })
+        })
     }
 
     return (
