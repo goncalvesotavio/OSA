@@ -68,7 +68,7 @@ export default function PagamentoPix() {
 
             const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
 
-            //await ativarImpressora(id_venda)
+            await ativarImpressora(id_venda)
             
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)
@@ -113,22 +113,32 @@ export default function PagamentoPix() {
 
     async function infos(id_venda) {
         const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
-            let itensParaEmail = {}
-            let assunto = ""
-            let extra = "Forma de pagamento: Pix"
-            let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)"
+    
+        let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)";
 
-            let detalhesUniformesFormatados = "Uniforme(s) adquirido(s):";
+        let detalhesUniformesFormatados = "";
+        if (detalhesUniformes.length > 0) {
+            detalhesUniformesFormatados = "Uniforme(s) adquirido(s):"
             detalhesUniformes.forEach(peca => {
                 detalhesUniformesFormatados += `\n${peca.Nome}\nTamanho: ${peca.Tamanho}\nQuantidade: ${peca.quantidade}\nPreço unitário: R$${peca.Preço}\nPreço total: R$${peca.quantidade * peca.Preço}\n`;
-            });
+            })
+        }
 
-            let detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
+        let detalhesArmarioFormatado = "";
+        if (carrinho.armarios.length > 0) {
+            detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
             carrinho.armarios.forEach(armario => {
                 detalhesArmarioFormatado += `${armario.nome}\nCorredor: ${armario.corredor}\nPerto da(s) sala(s): ${armario.salaInfo}\nTotal: R$${armario.preco}\n`;
             })
+        }
 
-            return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
+        const totalUniformes = detalhesUniformes.reduce((acc, item) => acc + (item.Preço * item.quantidade), 0);
+        const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 0), 0);
+        const totalCompra = totalUniformes + totalArmarios;
+
+        let extra = `Forma de pagamento: Pix\nTotal da compra: R$${totalCompra.toFixed(2)}`;
+
+        return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
     }
 
     async function handleEnviarComprovante(id_venda){

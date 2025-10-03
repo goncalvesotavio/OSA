@@ -25,15 +25,15 @@ app.post("/imprimir", async (req, res) => {
     printer.println("Obrigado por comprar pelo OSA!")
     printer.bold(false)
 
-    const uniformes = carrinho?.detalhesUniformesFormatados || ""
-    const armarios = carrinho?.detalhesArmarioFormatado || ""
-    const extraUniformes = carrinho?.extraUniformes || ""
+    const uniformes = (carrinho?.detalhesUniformesFormatados || "").trim()
+    const armarios = (carrinho?.detalhesArmarioFormatado || "").trim()
+    const extraUniformes = (carrinho?.extraUniformes || "").trim()
 
-    if (uniformes && armarios.length == 0) {
+    if (uniformes && !armarios) {
       printer.println("\n--- UNIFORMES ---")
       printer.println(uniformes);
       printer.println("\n" + extraUniformes)
-    } else if (armarios && uniformes.length == 0) {
+    } else if (armarios && !uniformes) {
       printer.println("\n--- ARMÁRIOS ---")
       printer.println(armarios);
     } else if (armarios && uniformes) {
