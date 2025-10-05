@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ClienteProvider } from '../context/clienteContext'
+import { ClienteProvider } from '../context/ClienteContext'
 import { ArquivoProvider } from '../context/ArquivoContext'
 import Layout from './Layout'
 

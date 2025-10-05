@@ -70,7 +70,7 @@ export default function PagamentoPix() {
 
             const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
 
-            await ativarImpressora(id_venda)
+            //await ativarImpressora(id_venda)
 
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)

@@ -91,6 +91,17 @@ export const CarrinhoProvider = ({ children }) => {
         localStorage.removeItem('carrinho');
     };
 
+    const atualizarArmario = (numero, novasInfos) => {
+        setCarrinho(prev => ({
+            ...prev,
+            armarios: prev.armarios.map(armario =>
+                armario.numero === numero
+                ? { ...armario, ...novasInfos } // atualiza só o armário encontrado
+                : armario // mantém os outros
+            )
+        }))
+    }
+
     return (
         <CarrinhoContext.Provider value={{
             carrinho,
@@ -99,7 +110,8 @@ export const CarrinhoProvider = ({ children }) => {
             removerQuantidadeDoCarrinho,
             adicionarArmario,
             removerArmario,
-            limparCarrinho
+            limparCarrinho,
+            atualizarArmario
         }}>
             {children}
         </CarrinhoContext.Provider>

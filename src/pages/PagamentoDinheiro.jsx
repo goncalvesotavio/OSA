@@ -63,14 +63,14 @@ export default function PagamentoDinheiro() {
 
             const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
 
+            //await ativarImpressora(id_venda)
+            
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)
             }
 
             if (carrinho.armarios.length > 0) {
-                for (const armario of carrinho.armarios) {
-                    await handleEnviarTermoUso();
-                }
+                await handleEnviarTermoUso();
             }
 
             showAlert("Compra finalizada!");
@@ -81,6 +81,27 @@ export default function PagamentoDinheiro() {
             showAlert("Ocorreu um erro ao finalizar a compra. Por favor, tente novamente.");
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    async function handleEnviarTermoUso() {
+        try {
+            const armariosArray = carrinho.armarios.map(a => {
+                const valorInt = parseInt(a.numero)
+                return armarios.find(ar => ar.numero === valorInt)
+            }).filter(Boolean)
+
+            const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, armarios: armariosArray }),
+            })
+
+            if (!response.ok) throw new Error('Falha ao enviar termo de uso');
+            console.log('Termos de uso enviados com sucesso.');
+        } catch (error) {
+            console.error('Erro ao enviar termos de uso:', error);
+            showAlert('Falha ao enviar termos de uso.');
         }
     }
 
@@ -112,27 +133,6 @@ export default function PagamentoDinheiro() {
         let extra = `Forma de pagamento: Dinheiro\nDirija-se à secretaria para realizar o pagamento ou efetue-o no momento da retirada da compra\nTotal da compra: R$${totalCompra.toFixed(2)}`;
 
         return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
-    }
-
-    async function handleEnviarTermoUso() {
-        try {
-            const armariosArray = carrinho.armarios.map(a => {
-                const valorInt = parseInt(a.numero)
-                return armarios.find(ar => ar.numero === valorInt)
-            }).filter(Boolean)
-
-            const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, armarios: armariosArray }),
-            })
-
-            if (!response.ok) throw new Error('Falha ao enviar termo de uso');
-            console.log('Termos de uso enviados com sucesso.');
-        } catch (error) {
-            console.error('Erro ao enviar termos de uso:', error);
-            showAlert('Falha ao enviar termos de uso.');
-        }
     }
 
     async function handleEnviarComprovante(id_venda) {

@@ -118,14 +118,16 @@ app.post("/gera-doc", async (req, res) => {
     console.log("Contrato recebido:", contrato)
     console.log("Infos recebido:", infos)
 
+    const armarioNum = infos.numero
+
     const doc = new Docxtemplater(zip)
     doc.render({
       nome: infos.Nome,
       rm: infos.RM,
       curso: infos.Curso,
       serie: infos.Serie,
-      data1: "x",
-      data2: " ",
+      anual: infos[`anual_${armarioNum}`],
+    semestral: infos[`semestral_${armarioNum}`],
       integrado: infos.integrado,
       modular: infos.modular,
       mtec: infos.mtec,

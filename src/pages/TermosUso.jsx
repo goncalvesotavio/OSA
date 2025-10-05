@@ -21,14 +21,15 @@ const IconeTermos = () => (
 
 export default function TermosUso() {
     const navigate = useNavigate();
-    const { carrinho } = useContext(CarrinhoContext);
+    const { carrinho, atualizarArmario } = useContext(CarrinhoContext);
     const { cliente } = useContext(ClienteContext);
     const { infos, adicionarInfosContext, adicionarArmariosContext } = useContext(ArquivoContext);
 
     const [aceito, setAceito] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [planoSelecionado, setPlanoSelecionado] = useState('');
-    const [datasContrato, setDatasContrato] = useState({ anual: null, semestral: null });
+    const [planosSelecionados, setPlanosSelecionados] = useState({});
+    const [datasContrato, setDatasContrato] = useState({ anual: null, semestral: null })
+    const [datasArmarios, setDatasArmarios] = useState({});
 
     useEffect(() => {
         async function carregarDatas() {
@@ -46,14 +47,30 @@ export default function TermosUso() {
 
     const formatarData = (dataString) => {
         if (!dataString) return '...';
-        const data = new Date(dataString);
-        const dia = String(data.getDate()).padStart(2, '0');
-        const mes = String(data.getMonth() + 1).padStart(2, '0');
-        const ano = data.getFullYear();
+        const [ano, mes, dia] = dataString.split("T")[0].split("-");
         return `${dia}/${mes}/${ano}`;
     };
 
+    const adicionarData = () => {
+        const dataDoc = {};
+
+          carrinho.armarios.forEach(armario => {
+            const plano = planosSelecionados[armario.numero] || 'anual'; // pega o plano do armário
+            // Atualiza o armário com a data limite real (se quiser usar depois)
+            const dataEscolhida = plano === 'anual' ? datasContrato.anual : datasContrato.semestral;
+            atualizarArmario(armario.numero, { Limite: dataEscolhida });
+
+            // Prepara os campos para o doc
+            dataDoc[`anual_${armario.numero}`] = plano === 'anual' ? 'X' : ' ';
+            dataDoc[`semestral_${armario.numero}`] = plano === 'semestral' ? 'X' : ' ';
+        });
+
+        return dataDoc;
+    };
+
     const handleDownloadDoc = async () => {
+        const dataDoc = adicionarData()
+
         setIsLoading(true);
         try {
             const clienteArray = await infosCliente(cliente);
@@ -67,7 +84,7 @@ export default function TermosUso() {
                 throw new Error("Contrato não encontrado");
             }
 
-            const dataLimite = planoSelecionado === 'anual' ? datasContrato.anual : datasContrato.semestral;
+            const dataLimite = planosSelecionados === 'anual' ? datasContrato.anual : datasContrato.semestral;
 
             for (const armario of carrinho.armarios) {
                 const response = await fetch("http://localhost:3000/gera-doc", {
@@ -75,7 +92,7 @@ export default function TermosUso() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         contrato: caminhoContrato,
-                        infos: { ...infos, ...clienteData, ...armario }
+                        infos: { ...infos, ...clienteData, ...armario, ...dataDoc }
                     })
                 });
 
@@ -138,32 +155,37 @@ export default function TermosUso() {
 
                 <div className={styles.selecaoPlano}>
                     <h3>Selecione o plano de aluguel:</h3>
-                    <div className={styles.opcaoPlano}>
-                        <input
-                            type="radio"
-                            id="planoSemestral"
-                            name="plano"
-                            value="semestral"
-                            checked={planoSelecionado === 'semestral'}
-                            onChange={(e) => setPlanoSelecionado(e.target.value)}
-                        />
-                        <label htmlFor="planoSemestral">
-                            Semestral <span>(Válido até: {formatarData(datasContrato.semestral)})</span>
-                        </label>
-                    </div>
-                    <div className={styles.opcaoPlano}>
-                        <input
-                            type="radio"
-                            id="planoAnual"
-                            name="plano"
-                            value="anual"
-                            checked={planoSelecionado === 'anual'}
-                            onChange={(e) => setPlanoSelecionado(e.target.value)}
-                        />
-                        <label htmlFor="planoAnual">
-                            Anual <span>(Válido até: {formatarData(datasContrato.anual)})</span>
-                        </label>
-                    </div>
+                    {carrinho.armarios.map(armario => (
+                        <div key={armario.numero}>
+                            <h4>Armário {armario.numero}</h4>       
+                            <div className={styles.opcaoPlano}>
+                                <input
+                                    type="radio"
+                                    name={`plano-${armario.numero}`} // name único por armário
+                                    value="semestral"
+                                    checked={planosSelecionados[armario.numero] === 'semestral'}
+                                    onChange={() => setPlanosSelecionados(prev => ({
+                                        ...prev,
+                                        [armario.numero]: 'semestral'
+                                    }))}
+                                />
+                                <label htmlFor="planoSemestral"> Semestral <span>(Válido até: {formatarData(datasContrato.semestral)})</span> </label>
+                            </div>
+                            <div className={styles.opcaoPlano}>
+                                <input
+                                    type="radio"
+                                    name={`plano-${armario.numero}`}
+                                    value="anual"
+                                    checked={planosSelecionados[armario.numero] === 'anual'}
+                                    onChange={() => setPlanosSelecionados(prev => ({
+                                        ...prev,
+                                        [armario.numero]: 'anual'
+                                    }))}
+                                />
+                                <label htmlFor="planoAnual"> Anual <span>(Válido até: {formatarData(datasContrato.anual)})</span> </label>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 <div className={styles.areaCheckbox}>
@@ -178,7 +200,7 @@ export default function TermosUso() {
 
                 <button
                     className={styles.botaoProsseguir}
-                    disabled={!aceito || !planoSelecionado}
+                    disabled={!aceito || !planosSelecionados}
                     onClick={handleDownloadDoc}
                 >
                     Prosseguir
