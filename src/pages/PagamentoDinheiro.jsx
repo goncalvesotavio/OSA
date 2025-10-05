@@ -80,7 +80,7 @@ export default function PagamentoDinheiro() {
             console.error("Erro ao finalizar a compra:", error);
             showAlert("Ocorreu um erro ao finalizar a compra. Por favor, tente novamente.");
         } finally {
-            //setIsLoading(false);
+            setIsLoading(false);
         }
     }
 
