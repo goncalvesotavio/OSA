@@ -1,0 +1,63 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+
+.modal {
+    background-color: #E0E0E0;
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.modalTexto {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.modalBotoes {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.modalBotaoSim, .modalBotaoNao {
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.modalBotaoSim:hover, .modalBotaoNao:hover {
+    transform: scale(1.05);
+}
+
+.modalBotaoSim {
+    background-color: #6a9595;
+    color: white; 
+}
+
+.modalBotaoNao {
+    background-color: #a56767;
+    color: white; 
+}

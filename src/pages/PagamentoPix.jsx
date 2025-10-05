@@ -10,6 +10,8 @@ import { buscarDetalhesDoCarrinho, fetchUniformes } from '../components/fetchUni
 import { finalizarCompra } from '../components/finalizarCompra';
 import { procurarEmail } from '../components/fetchClientes'
 import { ArquivoContext } from '../context/ArquivoContext';
+import LoadingOverlay from '../components/LoadingOverlay';
+import ConfirmacaoEmailModal from '../components/ConfirmacaoEmailModal';
 
 const IconeSetaAbaixo = () => (
     <svg className={styles.seta} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -69,7 +71,7 @@ export default function PagamentoPix() {
             const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
 
             await ativarImpressora(id_venda)
-            
+
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)
             }
@@ -77,7 +79,7 @@ export default function PagamentoPix() {
             if (carrinho.armarios.length > 0) {
                 await handleEnviarTermoUso()
             }
-            
+
             showAlert("Compra finalizada!")
             navigate('/descanso')
 
@@ -94,7 +96,7 @@ export default function PagamentoPix() {
             const armariosArray = carrinho.armarios.map(a => {
                 const valorInt = parseInt(a.numero)
                 return armarios.find(ar => ar.numero === valorInt)
-            }).filter(Boolean) 
+            }).filter(Boolean)
 
             const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
                 method: 'POST',
@@ -113,7 +115,7 @@ export default function PagamentoPix() {
 
     async function infos(id_venda) {
         const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
-    
+
         let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)";
 
         let detalhesUniformesFormatados = "";
@@ -141,7 +143,7 @@ export default function PagamentoPix() {
         return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
     }
 
-    async function handleEnviarComprovante(id_venda){
+    async function handleEnviarComprovante(id_venda) {
         try {
             const {
                 detalhesUniformesFormatados,
@@ -176,12 +178,12 @@ export default function PagamentoPix() {
             })
 
             if (!response.ok) throw new Error('Falha ao enviar comprovante');
-        
+
             console.log('Email enviado com sucesso.')
-            alert('Comprovante enviado por email!')
+            showAlert('Comprovante enviado por email!')
         } catch (error) {
             console.error('Erro ao enviar comprovante:', error);
-            alert('Falha ao enviar comprovante.');
+            showAlert('Falha ao enviar comprovante.');
         }
     }
 
@@ -197,11 +199,7 @@ export default function PagamentoPix() {
 
     return (
         <div className={styles.paginaPix}>
-            {isLoading && (
-                <div className={styles.loadingOverlay}>
-                    <div className={styles.loadingText}>AGUARDE...</div>
-                </div>
-            )}
+            <LoadingOverlay isLoading={isLoading} />
             <button onClick={() => navigate(-1)} className={styles.botaoVoltar}>←</button>
             <main className={styles.conteudo}>
                 <img src={iconePix} alt="PIX" className={styles.iconePix} />
@@ -217,17 +215,11 @@ export default function PagamentoPix() {
             <img src={logoOsa} alt="Logo OSA" className={styles.logoCanto} />
             <button onClick={() => setShowModal(true)} className={styles.botaoOk}>OK</button>
 
-            {showModal && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <p className={styles.modalTexto}>Deseja receber o comprovante por e-mail?</p>
-                        <div className={styles.modalBotoes}>
-                            <button onClick={() => finalizar(true)} className={styles.modalBotaoSim}>SIM, ENVIAR COMPROVANTE</button>
-                            <button onClick={() => finalizar(false)} className={styles.modalBotaoNao}>NÃO, OBRIGADO</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmacaoEmailModal
+                isOpen={showModal}
+                onConfirm={() => finalizar(true)}
+                onCancel={() => finalizar(false)}
+            />
         </div>
     );
 }

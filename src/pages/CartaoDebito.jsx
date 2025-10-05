@@ -10,6 +10,8 @@ import { AlertContext } from '../context/AlertContext';
 import { fetchUniformes, buscarDetalhesDoCarrinho } from '../components/fetchUniformes.jsx'
 import { procurarEmail } from '../components/fetchClientes'
 import { ArquivoContext } from '../context/ArquivoContext.jsx'
+import LoadingOverlay from '../components/LoadingOverlay';
+import ConfirmacaoEmailModal from '../components/ConfirmacaoEmailModal';
 
 export default function CartaoDebito() {
     const { carrinho, limparCarrinho } = useContext(CarrinhoContext);
@@ -60,9 +62,9 @@ export default function CartaoDebito() {
             }
 
             const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
-            
+
             if (enviarEmail) {
-                await handleEnviarComprovante()
+                await handleEnviarComprovante(id_venda)
             }
 
             if (carrinho.armarios.length > 0) {
@@ -70,7 +72,7 @@ export default function CartaoDebito() {
                     await handleEnviarTermoUso(armario.nome);
                 }
             }
-            
+
             showAlert("Compra finalizada!");
             navigate('/descanso');
 
@@ -87,7 +89,7 @@ export default function CartaoDebito() {
             const armariosArray = carrinho.armarios.map(a => {
                 const valorInt = parseInt(a.numero)
                 return armarios.find(ar => ar.numero === valorInt)
-            }).filter(Boolean) 
+            }).filter(Boolean)
 
             const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
                 method: 'POST',
@@ -105,7 +107,7 @@ export default function CartaoDebito() {
 
     async function infos(id_venda) {
         const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
-    
+
         let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)";
 
         let detalhesUniformesFormatados = "";
@@ -133,7 +135,7 @@ export default function CartaoDebito() {
         return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
     }
 
-    async function handleEnviarComprovante(id_venda){
+    async function handleEnviarComprovante(id_venda) {
         try {
             const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
             let itensParaEmail = {}
@@ -164,16 +166,16 @@ export default function CartaoDebito() {
             const response = await fetch('http://localhost:3000/enviar-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, carrinho: itensParaEmail, assunto, id_venda}),
+                body: JSON.stringify({ email, carrinho: itensParaEmail, assunto, id_venda }),
             });
 
             if (!response.ok) throw new Error('Falha ao enviar comprovante');
-            
+
             console.log('Email enviado com sucesso.')
-            alert('Comprovante enviado por email!')
+            showAlert('Comprovante enviado por email!')
         } catch (error) {
             console.error('Erro ao enviar comprovante:', error);
-            alert('Falha ao enviar comprovante.');
+            showAlert('Falha ao enviar comprovante.');
         }
     }
 
@@ -189,11 +191,7 @@ export default function CartaoDebito() {
 
     return (
         <div className={styles.paginaCartaoDebito}>
-            {isLoading && (
-                <div className={styles.loadingOverlay}>
-                    <div className={styles.loadingText}>AGUARDE...</div>
-                </div>
-            )}
+            <LoadingOverlay isLoading={isLoading} />
             <button onClick={() => navigate(-1)} className={styles.botaoVoltar}>←</button>
             <main className={styles.conteudo}>
                 <img src={iconeCartao} alt="Cartão" className={styles.iconeCabecalho} />
@@ -208,17 +206,11 @@ export default function CartaoDebito() {
             <img src={logoOsa} alt="Logo OSA" className={styles.logoCanto} />
             <button onClick={() => setShowModal(true)} className={styles.botaoOk}>OK</button>
 
-            {showModal && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <p className={styles.modalTexto}>Deseja receber o comprovante por e-mail?</p>
-                        <div className={styles.modalBotoes}>
-                            <button onClick={() => finalizar(true)} className={styles.modalBotaoSim}>SIM, ENVIAR COMPROVANTE</button>
-                            <button onClick={() => finalizar(false)} className={styles.modalBotaoNao}>NÃO, OBRIGADO</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmacaoEmailModal
+                isOpen={showModal}
+                onConfirm={() => finalizar(true)}
+                onCancel={() => finalizar(false)}
+            />
         </div>
     );
 }

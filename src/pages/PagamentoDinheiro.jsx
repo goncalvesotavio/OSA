@@ -10,6 +10,8 @@ import { AlertContext } from '../context/AlertContext';
 import { fetchUniformes, buscarDetalhesDoCarrinho } from '../components/fetchUniformes.jsx'
 import { procurarEmail } from '../components/fetchClientes'
 import { ArquivoContext } from '../context/ArquivoContext';
+import LoadingOverlay from '../components/LoadingOverlay';
+import ConfirmacaoEmailModal from '../components/ConfirmacaoEmailModal';
 
 export default function PagamentoDinheiro() {
     const { carrinho, limparCarrinho } = useContext(CarrinhoContext);
@@ -60,7 +62,7 @@ export default function PagamentoDinheiro() {
             }
 
             const id_venda = await finalizarCompra(pagamento, cliente, carrinho, uniformes, limparCarrinho, armarios)
-            
+
             if (enviarEmail) {
                 await handleEnviarComprovante(id_venda)
             }
@@ -70,7 +72,7 @@ export default function PagamentoDinheiro() {
                     await handleEnviarTermoUso();
                 }
             }
-            
+
             showAlert("Compra finalizada!");
             navigate('/descanso');
 
@@ -83,41 +85,41 @@ export default function PagamentoDinheiro() {
     }
 
     async function infos(id_venda) {
-            const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
-        
-            let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)";
-    
-            let detalhesUniformesFormatados = "";
-            if (detalhesUniformes.length > 0) {
-                detalhesUniformesFormatados = "Uniforme(s) adquirido(s):"
-                detalhesUniformes.forEach(peca => {
-                    detalhesUniformesFormatados += `\n${peca.Nome}\nTamanho: ${peca.Tamanho}\nQuantidade: ${peca.quantidade}\nPreço unitário: R$${peca.Preço}\nPreço total: R$${peca.quantidade * peca.Preço}\n`;
-                })
-            }
-    
-            let detalhesArmarioFormatado = "";
-            if (carrinho.armarios.length > 0) {
-                detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
-                carrinho.armarios.forEach(armario => {
-                    detalhesArmarioFormatado += `${armario.nome}\nCorredor: ${armario.corredor}\nPerto da(s) sala(s): ${armario.salaInfo}\nTotal: R$${armario.preco}\n`;
-                })
-            }
-    
-            const totalUniformes = detalhesUniformes.reduce((acc, item) => acc + (item.Preço * item.quantidade), 0);
-            const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 0), 0);
-            const totalCompra = totalUniformes + totalArmarios;
-    
-            let extra = `Forma de pagamento: Dinheiro\nDirija-se à secretaria para realizar o pagamento ou efetue-o no momento da retirada da compra\nTotal da compra: R$${totalCompra.toFixed(2)}`;
-    
-            return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
+        const detalhesUniformes = await buscarDetalhesDoCarrinho(carrinho.uniformes);
+
+        let extraUniformes = "\nA apresentação deste comprovante é necessária para a retirada do(s) uniforme(s)";
+
+        let detalhesUniformesFormatados = "";
+        if (detalhesUniformes.length > 0) {
+            detalhesUniformesFormatados = "Uniforme(s) adquirido(s):"
+            detalhesUniformes.forEach(peca => {
+                detalhesUniformesFormatados += `\n${peca.Nome}\nTamanho: ${peca.Tamanho}\nQuantidade: ${peca.quantidade}\nPreço unitário: R$${peca.Preço}\nPreço total: R$${peca.quantidade * peca.Preço}\n`;
+            })
         }
+
+        let detalhesArmarioFormatado = "";
+        if (carrinho.armarios.length > 0) {
+            detalhesArmarioFormatado = "Armário(s) adquirido(s):\n";
+            carrinho.armarios.forEach(armario => {
+                detalhesArmarioFormatado += `${armario.nome}\nCorredor: ${armario.corredor}\nPerto da(s) sala(s): ${armario.salaInfo}\nTotal: R$${armario.preco}\n`;
+            })
+        }
+
+        const totalUniformes = detalhesUniformes.reduce((acc, item) => acc + (item.Preço * item.quantidade), 0);
+        const totalArmarios = carrinho.armarios.reduce((acc, item) => acc + (item.preco || 0), 0);
+        const totalCompra = totalUniformes + totalArmarios;
+
+        let extra = `Forma de pagamento: Dinheiro\nDirija-se à secretaria para realizar o pagamento ou efetue-o no momento da retirada da compra\nTotal da compra: R$${totalCompra.toFixed(2)}`;
+
+        return { detalhesUniformesFormatados, detalhesArmarioFormatado, extra, extraUniformes }
+    }
 
     async function handleEnviarTermoUso() {
         try {
             const armariosArray = carrinho.armarios.map(a => {
                 const valorInt = parseInt(a.numero)
                 return armarios.find(ar => ar.numero === valorInt)
-            }).filter(Boolean) 
+            }).filter(Boolean)
 
             const response = await fetch('http://localhost:3000/enviar-email-termo-de-uso', {
                 method: 'POST',
@@ -133,7 +135,7 @@ export default function PagamentoDinheiro() {
         }
     }
 
-    async function handleEnviarComprovante(id_venda){
+    async function handleEnviarComprovante(id_venda) {
         try {
             const {
                 detalhesUniformesFormatados,
@@ -168,12 +170,12 @@ export default function PagamentoDinheiro() {
             })
 
             if (!response.ok) throw new Error('Falha ao enviar comprovante');
-        
+
             console.log('Email enviado com sucesso.')
-            alert('Comprovante enviado por email!')
+            showAlert('Comprovante enviado por email!')
         } catch (error) {
             console.error('Erro ao enviar comprovante:', error);
-            alert('Falha ao enviar comprovante.');
+            showAlert('Falha ao enviar comprovante.');
         }
     }
 
@@ -189,11 +191,7 @@ export default function PagamentoDinheiro() {
 
     return (
         <div className={styles.paginaDinheiro}>
-            {isLoading && (
-                <div className={styles.loadingOverlay}>
-                    <div className={styles.loadingText}>AGUARDE...</div>
-                </div>
-            )}
+            <LoadingOverlay isLoading={isLoading} />
             <button onClick={() => navigate(-1)} className={styles.botaoVoltar}>←</button>
             <main className={styles.conteudo}>
                 <img src={iconeDinheiro} alt="Dinheiro" className={styles.iconeCabecalho} />
@@ -208,17 +206,11 @@ export default function PagamentoDinheiro() {
             <img src={logoOsa} alt="Logo OSA" className={styles.logoCanto} />
             <button onClick={() => setShowModal(true)} className={styles.botaoOk}>OK</button>
 
-            {showModal && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <p className={styles.modalTexto}>Deseja receber o comprovante por e-mail?</p>
-                        <div className={styles.modalBotoes}>
-                            <button onClick={() => finalizar(true)} className={styles.modalBotaoSim}>SIM, ENVIAR COMPROVANTE</button>
-                            <button onClick={() => finalizar(false)} className={styles.modalBotaoNao}>NÃO, OBRIGADO</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmacaoEmailModal
+                isOpen={showModal}
+                onConfirm={() => finalizar(true)}
+                onCancel={() => finalizar(false)}
+            />
         </div>
     );
 }

@@ -19,7 +19,7 @@ export default function InfosCliente() {
     const [curso, setCurso] = useState('');
     const [serie, setSerie] = useState('');
     const [modulo, setModulo] = useState('');
-    
+
     const { adicionarClienteContext } = useContext(ClienteContext);
     const { carrinho } = useContext(CarrinhoContext);
     const { showAlert } = useContext(AlertContext)
@@ -81,6 +81,17 @@ export default function InfosCliente() {
         }
     };
 
+    const handleInputChange = (event) => {
+        const { id, value } = event.target;
+        if (id === 'nome') {
+            setNome(value);
+        } else if (id === 'rm') {
+            setRm(value);
+        } else if (id === 'email') {
+            setEmail(value);
+        }
+    };
+
     const handleCancel = () => {
         navigate('/carrinho');
     };
@@ -90,7 +101,7 @@ export default function InfosCliente() {
             showAlert('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
-        
+
         const isAlunoOuResponsavel = tipoUsuario === 'Aluno' || tipoUsuario === 'Responsável';
 
         if (isAlunoOuResponsavel && carrinho.armarios.length > 0) {
@@ -116,7 +127,7 @@ export default function InfosCliente() {
             showAlert("Por favor, insira um email válido.");
             return;
         }
-            
+
         await adicionarClienteNovo()
     }
 
@@ -129,22 +140,22 @@ export default function InfosCliente() {
         )
 
         const isAlunoOuResponsavel = tipoUsuario === 'Aluno' || tipoUsuario === 'Responsável'
-            if (isAlunoOuResponsavel && carrinho.armarios.length > 0) {
-                const clienteExisteRM = todosCliente.find(cliente =>
-                    cliente.RM === rm
-                )
+        if (isAlunoOuResponsavel && carrinho.armarios.length > 0) {
+            const clienteExisteRM = todosCliente.find(cliente =>
+                cliente.RM === rm
+            )
 
-                if (!clienteExisteRM && clienteExiste) {
-                    const clienteUpdate = {
-                        rm: rm,
-                        tipoCurso: tipoCurso,
-                        curso: curso
-                    }
+            if (!clienteExisteRM && clienteExiste) {
+                const clienteUpdate = {
+                    rm: rm,
+                    tipoCurso: tipoCurso,
+                    curso: curso
+                }
 
-                    if (tipoCurso === 'Integrado ao Ensino Médio - MTEC') {
-                        clienteUpdate.serie = serie
+                if (tipoCurso === 'Integrado ao Ensino Médio - MTEC') {
+                    clienteUpdate.serie = serie
 
-                        const resultadoPI = cursosMtec.filter(curso =>
+                    const resultadoPI = cursosMtec.filter(curso =>
                         curso.toLowerCase().includes("PI".toLowerCase())
                     )
 
@@ -197,11 +208,11 @@ export default function InfosCliente() {
                     }
 
                     adicionarInfosContext(infosContrato)
-                    }
-                    if (tipoCurso === 'Modular') {
-                        clienteUpdate.serie = modulo
+                }
+                if (tipoCurso === 'Modular') {
+                    clienteUpdate.serie = modulo
 
-                        const infosContrato = ({
+                    const infosContrato = ({
                         integrado: " ",
                         modular: "x",
                         mtec: " ",
@@ -211,11 +222,11 @@ export default function InfosCliente() {
                     })
 
                     adicionarInfosContext(infosContrato)
-                    }
-
-                    atualizarCliente(clienteExiste.id_cliente, clienteUpdate)
                 }
+
+                atualizarCliente(clienteExiste.id_cliente, clienteUpdate)
             }
+        }
 
         if (!clienteExiste) {
             const clienteNovo = {
@@ -351,12 +362,12 @@ export default function InfosCliente() {
                         id="nome"
                         value={nome}
                         onFocus={() => handleFocus('nome')}
-                        readOnly
+                        onChange={handleInputChange}
                         placeholder="Clique para digitar"
                         className={inputAtivo === 'nome' ? styles.inputAtivo : ''}
                     />
                 </div>
-                
+
                 <div className={styles.campoForm}>
                     <label htmlFor="email">E-mail:</label>
                     <input
@@ -365,7 +376,7 @@ export default function InfosCliente() {
                         id="email"
                         value={email}
                         onFocus={() => handleFocus('email')}
-                        readOnly
+                        onChange={handleInputChange}
                         placeholder="Clique para digitar"
                         className={inputAtivo === 'email' ? styles.inputAtivo : ''}
                     />
@@ -381,7 +392,7 @@ export default function InfosCliente() {
                                 id="rm"
                                 value={rm}
                                 onFocus={() => handleFocus('rm')}
-                                readOnly
+                                onChange={handleInputChange}
                                 placeholder="Clique para digitar"
                                 className={inputAtivo === 'rm' ? styles.inputAtivo : ''}
                             />
@@ -502,7 +513,7 @@ export default function InfosCliente() {
                     onClose={() => setInputAtivo(null)}
                 />
             )}
-            
+
             <img src={logoOsa} alt="Logo OSA" className={styles.logoCanto} />
         </div>
     );

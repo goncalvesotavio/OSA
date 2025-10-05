@@ -1,14 +1,13 @@
-import React, { useState, useContext, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { CarrinhoContext } from '../context/CarrinhoContext'
-import styles from '../styles/TermosUso.module.css'
-import logoOsa from '/osaCompleto.png'
-import { fetchContrato } from '../components/fetchContratos'
-import { ClienteContext } from '../context/ClienteContext'
-import { infosCliente } from '../components/fetchContratos'
-import { salvarArquivo } from '../components/fetchContratos'
-import { ArquivoContext } from '../context/ArquivoContext'
-import { procurarDatas } from '../components/fetchArmarios'
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CarrinhoContext } from '../context/CarrinhoContext';
+import styles from '../styles/TermosUso.module.css';
+import logoOsa from '/osaCompleto.png';
+import { fetchContrato, infosCliente, salvarArquivo } from '../components/fetchContratos';
+import { ClienteContext } from '../context/ClienteContext';
+import { ArquivoContext } from '../context/ArquivoContext';
+import { procurarDatas } from '../components/fetchArmarios';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const IconeTermos = () => (
     <svg className={styles.iconeCabecalho} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -21,75 +20,91 @@ const IconeTermos = () => (
 );
 
 export default function TermosUso() {
-    const navigate = useNavigate()
-    const { limparCarrinho } = useContext(CarrinhoContext)
-    const [aceito, setAceito] = useState(false)
-    const { cliente } = useContext(ClienteContext)
-    const { adicionarArquivoContext, adicionarInfosContext, infos, adicionarArmariosContext, armarios } = useContext(ArquivoContext)
-    const { carrinho, adicionarArmario } = useContext(CarrinhoContext)
-    const [data, setData] = useState()
+    const navigate = useNavigate();
+    const { carrinho } = useContext(CarrinhoContext);
+    const { cliente } = useContext(ClienteContext);
+    const { infos, adicionarInfosContext, adicionarArmariosContext } = useContext(ArquivoContext);
 
-    const handleProceed = () => {
-        navigate('/forma-pagamento')
-    }
-
-    const buscarCliente = async () => {
-        const dadosCliente = await infosCliente(cliente)
-        return dadosCliente
-    }
-
-    const handleDownloadDoc = async () => {
-        try {
-            
-            const clienteArray = await buscarCliente()
-            const cliente = clienteArray[0]
-            adicionarInfosContext(cliente)
-            
-            for (let i = 0; i < carrinho.armarios.length; i++) {
-            const contrato = await fetchContrato(new Date().getFullYear())
-            const caminhoContrato = contrato[0]?.Contrato
-            if (!contrato) {
-                alert("Contrato não encontrado!")
-                return
-            }
-
-            const response = await fetch("http://localhost:3000/gera-doc", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contrato: caminhoContrato, 
-                    infos: { ...infos, ...cliente, ...carrinho.armarios[i] }
-                })
-            })
-
-            if (!response.ok) throw new Error("Erro ao baixar documento")
-            const blob = await response.blob()
-            const nomeArquivo = `Contrato_uso_2025_${carrinho.armarios[i].numero}.pdf`
-
-            const urlBD = await salvarArquivo(blob, nomeArquivo)
-
-            adicionarArmariosContext({
-                numero: carrinho.armarios[i].numero,
-                preco: carrinho.armarios[i].preco,
-                contratoUrl: urlBD,
-                contratoNome: nomeArquivo
-            })
-        }
-
-        } catch (error) {
-            console.error(error)
-            alert("Erro ao baixar documento")
-        }
-        
-        navigate('/forma-pagamento')
-    }
+    const [aceito, setAceito] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [planoSelecionado, setPlanoSelecionado] = useState('');
+    const [datasContrato, setDatasContrato] = useState({ anual: null, semestral: null });
 
     useEffect(() => {
-        const datas = procurarDatas(new Date().getFullYear())
-    })
+        async function carregarDatas() {
+            const anoAtual = new Date().getFullYear();
+            const data = await procurarDatas(anoAtual);
+            if (data && data.length > 0) {
+                setDatasContrato({
+                    anual: data[0].Data_anual,
+                    semestral: data[0].Data_semestral,
+                });
+            }
+        }
+        carregarDatas();
+    }, []);
+
+    const formatarData = (dataString) => {
+        if (!dataString) return '...';
+        const data = new Date(dataString);
+        const dia = String(data.getDate()).padStart(2, '0');
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const ano = data.getFullYear();
+        return `${dia}/${mes}/${ano}`;
+    };
+
+    const handleDownloadDoc = async () => {
+        setIsLoading(true);
+        try {
+            const clienteArray = await infosCliente(cliente);
+            const clienteData = clienteArray[0];
+            adicionarInfosContext(clienteData);
+
+            const contratoData = await fetchContrato(new Date().getFullYear());
+            const caminhoContrato = contratoData[0]?.Contrato;
+            if (!caminhoContrato) {
+                alert("Modelo de contrato não encontrado!");
+                throw new Error("Contrato não encontrado");
+            }
+
+            const dataLimite = planoSelecionado === 'anual' ? datasContrato.anual : datasContrato.semestral;
+
+            for (const armario of carrinho.armarios) {
+                const response = await fetch("http://localhost:3000/gera-doc", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contrato: caminhoContrato,
+                        infos: { ...infos, ...clienteData, ...armario }
+                    })
+                });
+
+                if (!response.ok) throw new Error("Erro ao gerar documento para o armário " + armario.numero);
+
+                const blob = await response.blob();
+                const nomeArquivo = `Contrato_uso_${new Date().getFullYear()}_${armario.numero}.pdf`;
+                const urlBD = await salvarArquivo(blob, nomeArquivo);
+
+                adicionarArmariosContext({
+                    numero: armario.numero,
+                    preco: armario.preco,
+                    contratoUrl: urlBD,
+                    contratoNome: nomeArquivo,
+                    dataLimite: dataLimite
+                });
+            }
+            navigate('/forma-pagamento');
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao preparar documento: " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className={styles.paginaTermos}>
+            <LoadingOverlay isLoading={isLoading} />
             <button onClick={() => navigate(-1)} className={styles.botaoVoltar}>←</button>
             <header className={styles.cabecalho}>
                 <IconeTermos />
@@ -97,29 +112,60 @@ export default function TermosUso() {
             </header>
             <main className={styles.containerTermos}>
                 <div className={styles.textoTermos}>
-                  <ul>
-                    <li>O armário é da escola. A aquisição de armários na ETEC Bento Quirino é feita pela administração da Escola, sob total responsabilidade da mesma;</li>
-                    <li>Os horários de venda dos armários serão divulgados no mural da Secretaria no pátio, no site da escola e no facebook;</li>
-                    <li>Impreterivelmente, até o dia <strong>19 de dezembro (anual) ou 11 de julho (semestral)</strong>, todos os armários deverão ser desocupados, inclusive os livros devem ser retirados e entregues a coordenação do núcleo comum, para passarem por limpeza e manutenção e serem reorganizados para o ano seguinte. Assim, o aluno deve retirar todos os seus pertences ao fim do ano letivo. A escola não se responsabilizará por pertences deixados nos armários;</li>
-                    <li><strong>Materiais que permanecerem nos armários após o prazo para retirada dos mesmos, serão doados;</strong></li>
-                    <li>A escola se reserva o direito de abrir qualquer armário em caso de necessidade;</li>
-                    <li>Por amostragem será feita a vistoria nos armários dos alunos, em qualquer dia e horário, sendo que o mesmo deverá abrir e acompanhar a vistoria de seu armário, diante de um membro da equipe diretiva ou coordenação, registrando-se na ficha individual as eventuais irregularidades que serão também levadas ao conhecimento de seus pais ou responsáveis;</li>
-                    <li><strong>É PROIBIDO colar adesivos, escrever, desenhar ou fazer qualquer tipo de anotação na porta dos armários ou em qualquer parte da estrutura do mesmo. Se trata de um patrimônio público;</strong></li>
-                    <li>É vedada a colocação de qualquer objeto na parte externa, em cima ou em baixo dos armários;</li>
-                    <li>O cadeado para segurança das portas de cada armário é de total responsabilidade do aluno que contratou o serviço;</li>
-                    <li>Não será de responsabilidade da administração da escola, o desaparecimento de objetos ou pertences dentro de armários sem cadeado;</li>
-                    <li>Não é permitido armazenar ou guardar ALIMENTOS dentro dos armários ou qualquer objetivo que gere mal cheiro;</li>
-                    <li>Os armários devem ser usados somente para guardar material didático;</li>
-                    <li>Para não dificultar o andamento das aulas, os armários deverão ser utilizados somente no horário que o aluno não estiver em aula;</li>
-                    <li>Questões referentes à manutenção ou problemas nos armários devem ser protocoladas na secretaria, que serão direcionadas para providencia;</li>
-                    <li>O aluno deverá devolver o armário nas condições em que o recebeu, ou seja, em perfeito estado de conservação e limpeza, até o dia 20 de dezembro (anual) ou 05 de julho (semestral);</li>
-                    <li>É vedada a troca de armários entre alunos;</li>
-                    <li>É vedada a abertura e/ou manuseio do conteúdo de qualquer armário que não seja o atribuído pela administração da escola ao aluno;</li>
-                    <li>Eventuais custos com reparo do armário, devido à utilização inadequada, serão cobrados do(s) usuário(s).
-Em caso de pandemia, terremoto, catástrofes naturais ou algo do tipo que não sejam de responsabilidade da APM ou da Etec Bento Quirino, impossibilitando o uso do armário em um determinado período de tempo, não nos responsabilizamos pela devolução do dinheiro investido.</li>
-                  </ul>
-                  <p><strong>Lembre-se, hoje você esta usando o armário, amanhã outros utilizarão.</strong></p>  
+                    <ul>
+                        <li>O armário é da escola. A aquisição de armários na ETEC Bento Quirino é feita pela administração da Escola, sob total responsabilidade da mesma;</li>
+                        <li>Os horários de venda dos armários serão divulgados no mural da Secretaria no pátio, no site da escola e no facebook;</li>
+                        <li>Impreterivelmente, até o dia <strong>19 de dezembro (anual) ou 11 de julho (semestral)</strong>, todos os armários deverão ser desocupados, inclusive os livros devem ser retirados e entregues a coordenação do núcleo comum, para passarem por limpeza e manutenção e serem reorganizados para o ano seguinte. Assim, o aluno deve retirar todos os seus pertences ao fim do ano letivo. A escola não se responsabilizará por pertences deixados nos armários;</li>
+                        <li><strong>Materiais que permanecerem nos armários após o prazo para retirada dos mesmos, serão doados;</strong></li>
+                        <li>A escola se reserva o direito de abrir qualquer armário em caso de necessidade;</li>
+                        <li>Por amostragem será feita a vistoria nos armários dos alunos, em qualquer dia e horário, sendo que o mesmo deverá abrir e acompanhar a vistoria de seu armário, diante de um membro da equipe diretiva ou coordenação, registrando-se na ficha individual as eventuais irregularidades que serão também levadas ao conhecimento de seus pais ou responsáveis;</li>
+                        <li><strong>É PROIBIDO colar adesivos, escrever, desenhar ou fazer qualquer tipo de anotação na porta dos armários ou em qualquer parte da estrutura do mesmo. Se trata de um patrimônio público;</strong></li>
+                        <li>É vedada a colocação de qualquer objeto na parte externa, em cima ou em baixo dos armários;</li>
+                        <li>O cadeado para segurança das portas de cada armário é de total responsabilidade do aluno que contratou o serviço;</li>
+                        <li>Não será de responsabilidade da administração da escola, o desaparecimento de objetos ou pertences dentro de armários sem cadeado;</li>
+                        <li>Não é permitido armazenar ou guardar ALIMENTOS dentro dos armários ou qualquer objetivo que gere mal cheiro;</li>
+                        <li>Os armários devem ser usados somente para guardar material didático;</li>
+                        <li>Para não dificultar o andamento das aulas, os armários deverão ser utilizados somente no horário que o aluno não estiver em aula;</li>
+                        <li>Questões referentes à manutenção ou problemas nos armários devem ser protocoladas na secretaria, que serão direcionadas para providencia;</li>
+                        <li>O aluno deverá devolver o armário nas condições em que o recebeu, ou seja, em perfeito estado de conservação e limpeza, até o dia 20 de dezembro (anual) ou 05 de julho (semestral);</li>
+                        <li>É vedada a troca de armários entre alunos;</li>
+                        <li>É vedada a abertura e/ou manuseio do conteúdo de qualquer armário que não seja o atribuído pela administração da escola ao aluno;</li>
+                        <li>Eventuais custos com reparo do armário, devido à utilização inadequada, serão cobrados do(s) usuário(s).
+                            Em caso de pandemia, terremoto, catástrofes naturais ou algo do tipo que não sejam de responsabilidade da APM ou da Etec Bento Quirino, impossibilitando o uso do armário em um determinado período de tempo, não nos responsabilizamos pela devolução do dinheiro investido.</li>
+                    </ul>
+                    <p><strong>Lembre-se, hoje você esta usando o armário, amanhã outros utilizarão.</strong></p>
                 </div>
+
+                <div className={styles.selecaoPlano}>
+                    <h3>Selecione o plano de aluguel:</h3>
+                    <div className={styles.opcaoPlano}>
+                        <input
+                            type="radio"
+                            id="planoSemestral"
+                            name="plano"
+                            value="semestral"
+                            checked={planoSelecionado === 'semestral'}
+                            onChange={(e) => setPlanoSelecionado(e.target.value)}
+                        />
+                        <label htmlFor="planoSemestral">
+                            Semestral <span>(Válido até: {formatarData(datasContrato.semestral)})</span>
+                        </label>
+                    </div>
+                    <div className={styles.opcaoPlano}>
+                        <input
+                            type="radio"
+                            id="planoAnual"
+                            name="plano"
+                            value="anual"
+                            checked={planoSelecionado === 'anual'}
+                            onChange={(e) => setPlanoSelecionado(e.target.value)}
+                        />
+                        <label htmlFor="planoAnual">
+                            Anual <span>(Válido até: {formatarData(datasContrato.anual)})</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div className={styles.areaCheckbox}>
                     <input
                         type="checkbox"
@@ -129,9 +175,10 @@ Em caso de pandemia, terremoto, catástrofes naturais ou algo do tipo que não s
                     />
                     <label htmlFor="aceite">Li e concordo com os termos de uso.</label>
                 </div>
+
                 <button
                     className={styles.botaoProsseguir}
-                    disabled={!aceito}
+                    disabled={!aceito || !planoSelecionado}
                     onClick={handleDownloadDoc}
                 >
                     Prosseguir
@@ -139,5 +186,5 @@ Em caso de pandemia, terremoto, catástrofes naturais ou algo do tipo que não s
             </main>
             <img src={logoOsa} alt="Logo OSA" className={styles.logoCanto} />
         </div>
-    )
+    );
 }
