@@ -349,13 +349,17 @@ export default function InfosCliente() {
                         <option value="" disabled>Selecione uma opção</option>
                         <option value="Aluno">Aluno</option>
                         <option value="Responsável">Responsável</option>
-                        <option value="Professor">Professor</option>
-                        <option value="Funcionário">Funcionário</option>
+                        {carrinho.armarios.length === 0 && (
+                            <>
+                                <option value="Professor">Professor</option>
+                                <option value="Funcionário">Funcionário</option>
+                            </>
+                        )}
                     </select>
                 </div>
 
                 <div className={styles.campoForm}>
-                    <label htmlFor="nome">{tipoUsuario === 'Responsável' ? 'Nome completo do aluno:' : 'Nome completo:'}</label>
+                    <label htmlFor="nome">{tipoUsuario === 'Responsável' &&  carrinho.armarios.length > 0 ? 'Nome completo do aluno:' : 'Nome completo:'}</label>
                     <input
                         ref={nomeInputRef}
                         type="text"
