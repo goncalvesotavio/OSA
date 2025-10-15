@@ -47,7 +47,9 @@ app.post("/imprimir", async (req, res) => {
     }
 
     if (carrinho?.extra) {
+      printer.bold(true)
       printer.println("\n" + carrinho.extra)
+      printer.bold(false)
     }
 
     printer.println("\nNúmero da venda: " + id_venda)
@@ -59,7 +61,11 @@ app.post("/imprimir", async (req, res) => {
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = path.dirname(__filename)
 
-    await printer.printImage(path.join(__dirname, "public", "osaCompleto.png"))
+    await printer.printImage(path.join(__dirname, "..", "public", "osaCompleto.png"))
+
+    printer.newLine()
+    printer.newLine()
+    printer.newLine()
 
     printer.alignCenter()
     printer.bold(true)
