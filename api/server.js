@@ -31,8 +31,8 @@ ${carrinho.extra || ''}
     let transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'osabentao@gmail.com', 
-        pass: 'yeia ymes kggv xznh',  
+        user: 'su.grotti@gmail.com', 
+        pass: 'vdzp cisd zpva xxuy',  
       }
     });
 
